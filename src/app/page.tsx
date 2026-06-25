@@ -785,6 +785,8 @@ export default function HomePage() {
         open={createModalOpen} 
         onOpenChange={setCreateModalOpen} 
         onSuccess={fetchData} 
+        existingProjects={filterOptions.projects}
+        existingCategories={filterOptions.categories}
       />
 
       {/* Excel Upload Modal */}

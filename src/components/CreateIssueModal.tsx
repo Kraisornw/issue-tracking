@@ -15,9 +15,17 @@ interface CreateIssueModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  existingProjects?: string[];
+  existingCategories?: string[];
 }
 
-export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueModalProps) {
+export function CreateIssueModal({ 
+  open, 
+  onOpenChange, 
+  onSuccess,
+  existingProjects = [],
+  existingCategories = []
+}: CreateIssueModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -164,8 +172,14 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
                   onChange={(e) => setProject(e.target.value)}
                   placeholder="เช่น Document, Monitoring"
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
+                  list="existing-projects-list"
                   required
                 />
+                <datalist id="existing-projects-list">
+                  {existingProjects.map((proj) => (
+                    <option key={proj} value={proj} />
+                  ))}
+                </datalist>
               </div>
 
               {/* Discussion */}
@@ -177,8 +191,14 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
                   onChange={(e) => setCategory(e.target.value)}
                   placeholder="เช่น Architectural, MEP"
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
+                  list="existing-categories-list"
                   required
                 />
+                <datalist id="existing-categories-list">
+                  {existingCategories.map((cat) => (
+                    <option key={cat} value={cat} />
+                  ))}
+                </datalist>
               </div>
 
               {/* Priority */}
