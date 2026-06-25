@@ -209,7 +209,7 @@ export const calculateKPIs = (issues: Issue[], currentDateStr = '2026-06-24'): D
     };
   }
 
-  const open = issues.filter(i => i.status === 'Open').length;
+  const open = issues.filter(i => i.status === 'Open' || i.status === 'Pending').length;
   const inProgress = issues.filter(i => i.status === 'In Progress').length;
   const closed = issues.filter(i => i.status === 'Closed').length;
   const critical = issues.filter(i => i.status !== 'Closed' && i.priority === 'High').length;

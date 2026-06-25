@@ -71,10 +71,12 @@ export async function GET(req: NextRequest) {
     // 1. Status Distribution (Pie/Donut)
     const openCount = issues.filter(i => i.status === 'Open').length;
     const inProgressCount = issues.filter(i => i.status === 'In Progress').length;
+    const pendingCount = issues.filter(i => i.status === 'Pending').length;
     const closedCount = issues.filter(i => i.status === 'Closed').length;
     const statusDistribution = [
       { name: 'Open', value: openCount },
       { name: 'In Progress', value: inProgressCount },
+      { name: 'Pending', value: pendingCount },
       { name: 'Closed', value: closedCount }
     ];
 

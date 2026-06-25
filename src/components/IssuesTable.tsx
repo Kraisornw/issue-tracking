@@ -45,6 +45,7 @@ export function IssuesTable({ issues, filters }: IssuesTableProps) {
     switch (status) {
       case 'Open': return <Badge className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 font-semibold">Open</Badge>;
       case 'In Progress': return <Badge className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 font-semibold">In Progress</Badge>;
+      case 'Pending': return <Badge className="bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 font-semibold">Pending</Badge>;
       case 'Closed': return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 font-semibold">Closed</Badge>;
       default: return <Badge variant="outline">{status}</Badge>;
     }

@@ -58,6 +58,7 @@ export function StatusDistribution({ data }: StatusDistributionProps) {
   const statusColors: Record<string, string> = {
     'Open': '#d97706',      // amber-600
     'In Progress': '#2563eb', // blue-650
+    'Pending': '#8b5cf6',    // purple-600
     'Closed': '#10b981'       // emerald-600
   };
 

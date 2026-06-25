@@ -204,8 +204,10 @@ export async function POST(req: NextRequest) {
       // 5. Standardize Status (default to 'Open')
       const normalizedStatus = status.toLowerCase();
       let finalStatus = 'Open';
-      if (normalizedStatus === 'in progress' || normalizedStatus === 'progress' || normalizedStatus === 'pending') {
+      if (normalizedStatus === 'in progress' || normalizedStatus === 'progress') {
         finalStatus = 'In Progress';
+      } else if (normalizedStatus === 'pending') {
+        finalStatus = 'Pending';
       } else if (
         normalizedStatus === 'closed' || 
         normalizedStatus === 'close' || 
