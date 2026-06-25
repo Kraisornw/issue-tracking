@@ -1,0 +1,22 @@
+const fs = require('fs');
+const readline = require('readline');
+
+const fileStream = fs.createReadStream('C:/Users/kraisornw/.gemini/antigravity/brain/9b2d923c-370e-498f-ac4a-fbfda6107b38/.system_generated/logs/transcript_full.jsonl');
+const rl = readline.createInterface({
+  input: fileStream,
+  crlfDelay: Infinity
+});
+
+let lineNum = 0;
+rl.on('line', (line) => {
+  lineNum++;
+  const data = JSON.parse(line);
+  if (data.tool_calls) {
+    const tc = data.tool_calls.find(t => t.name === 'write_to_file' && t.args.TargetFile && t.args.TargetFile.includes('api/upload/route.ts'));
+    if (tc) {
+      console.log(`--- Match at line ${lineNum} (Step ${data.step_index}) ---`);
+      console.log(tc.args.CodeContent);
+      process.exit(0);
+    }
+  }
+});
