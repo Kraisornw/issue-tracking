@@ -559,6 +559,46 @@ class DatabaseService {
     }
   }
 
+  async deleteIssue(issueId: string): Promise<void> {
+    if (hasSupabaseConfig && supabase) {
+      const { error } = await supabase
+        .from('issues')
+        .delete()
+        .eq('issueId', issueId);
+      
+      if (error) {
+        console.error('Supabase deleteIssue error:', error);
+        throw error;
+      }
+    } else if (hasFirebaseConfig && db) {
+      const snapshot = await db.collection('issues').where('issueId', '==', issueId).get();
+      const batch = db.batch();
+      snapshot.docs.forEach((doc: any) => batch.delete(doc.ref));
+      await batch.commit();
+    } else {
+      const data = getLocalData();
+      data.issues = data.issues.filter(i => i.issueId !== issueId);
+      saveLocalData(data);
+    }
+
+    // Refresh cache
+    const allIssues = await this.getIssues();
+    const newSummary = calculateKPIs(allIssues);
+    if (hasSupabaseConfig && supabase) {
+      await supabase.from('dashboard_cache').upsert({
+        key: 'summary',
+        data: newSummary,
+        updatedAt: new Date().toISOString()
+      });
+    } else if (hasFirebaseConfig && db) {
+      await db.collection('dashboard_cache').doc('summary').set(newSummary);
+    } else {
+      const data = getLocalData();
+      data.dashboardCache = newSummary;
+      saveLocalData(data);
+    }
+  }
+
   async getDashboardSummary(): Promise<DashboardSummary> {
     if (hasSupabaseConfig && supabase) {
       const { data, error } = await supabase

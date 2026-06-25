@@ -90,10 +90,18 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    await dbService.clearAllData();
-    return NextResponse.json({ success: true, message: 'All data cleared successfully' });
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    
+    if (id) {
+      await dbService.deleteIssue(id);
+      return NextResponse.json({ success: true, message: `Issue ${id} deleted successfully` });
+    } else {
+      await dbService.clearAllData();
+      return NextResponse.json({ success: true, message: 'All data cleared successfully' });
+    }
   } catch (error: any) {
-    console.error('Error clearing data:', error);
+    console.error('Error deleting issue/data:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

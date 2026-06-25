@@ -234,6 +234,25 @@ export default function HomePage() {
     }
   };
 
+  const handleDeleteIssue = async (issueId: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/issues?id=${encodeURIComponent(issueId)}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert("ลบข้อมูล Issue สำเร็จ!");
+        fetchData();
+      } else {
+        const err = await res.json();
+        alert(`เกิดข้อผิดพลาด: ${err.error || 'Failed to delete issue'}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to connect to the issue delete API.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 1. Export CSV (Redirects directly to endpoint)
   const exportCsv = () => {
     const queryParams = new URLSearchParams();
@@ -615,7 +634,7 @@ export default function HomePage() {
             {activeTab === 'issues' && (
               <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
                 <CardContent className="p-6">
-                  <IssuesTable issues={issues} filters={filters} />
+                  <IssuesTable issues={issues} filters={filters} onDeleteIssue={handleDeleteIssue} />
                 </CardContent>
               </Card>
             )}

@@ -17,7 +17,8 @@ import {
   ChevronRight, 
   ArrowUpDown, 
   Search,
-  Eye
+  Eye,
+  Trash2
 } from 'lucide-react';
 import { Issue } from '@/types';
 import { 
@@ -30,9 +31,10 @@ import {
 interface IssuesTableProps {
   issues: Issue[];
   filters: any;
+  onDeleteIssue?: (issueId: string) => void;
 }
 
-export function IssuesTable({ issues, filters }: IssuesTableProps) {
+export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof Issue>('openDate');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -193,7 +195,7 @@ export function IssuesTable({ issues, filters }: IssuesTableProps) {
                 </Button>
               </TableHead>
               <TableHead className="text-slate-600 font-bold">Comment</TableHead>
-              <TableHead className="text-slate-600 font-bold w-[60px] text-center">View</TableHead>
+              <TableHead className="text-slate-600 font-bold w-[100px] text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -219,15 +221,31 @@ export function IssuesTable({ issues, filters }: IssuesTableProps) {
                   <TableCell className="truncate max-w-[150px] text-slate-500" title={issue.location}>
                     {issue.location || '-'}
                   </TableCell>
-                  <TableCell className="text-center py-2">
+                  <TableCell className="text-center py-2 flex items-center justify-center gap-1">
                     <Button 
                       size="icon" 
                       variant="ghost" 
                       className="h-7 w-7 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50" 
                       onClick={() => setSelectedIssue(issue)}
+                      title="ดูรายละเอียด"
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
+                    {onDeleteIssue && (
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="h-7 w-7 text-rose-500 hover:text-rose-700 hover:bg-rose-50" 
+                        onClick={() => {
+                          if (confirm(`คุณต้องการลบ Issue รหัส ${issue.issueId} ใช่หรือไม่?`)) {
+                            onDeleteIssue(issue.issueId);
+                          }
+                        }}
+                        title="ลบ Issue"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
