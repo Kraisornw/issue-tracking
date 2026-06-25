@@ -223,10 +223,16 @@ export async function POST(req: NextRequest) {
       // Auto closed date is set to due date if status is Closed, else null
       const closedDateFormatted = finalStatus === 'Closed' ? (dueDateFormatted || openDateFormatted) : null;
 
-      // 6. Generate unique stable Issue ID, appending counter if duplicates found in sheet
-      const cleanProject = finalProject.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
-      const cleanDescription = finalDescription.replace(/[^a-zA-Z0-9]/g, '').substring(0, 15);
-      const baseIssueId = `ISS-${openDateFormatted}-${cleanProject}-${cleanDescription}`.toUpperCase();
+      // 6. Generate stable hash based on issue identity fields (Date, Project, Category, Location, Description)
+      const uniqueKey = `${openDateFormatted}|${finalProject}|${category}|${location}|${finalDescription}`;
+      let hash = 0;
+      for (let i = 0; i < uniqueKey.length; i++) {
+        const chr = uniqueKey.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0;
+      }
+      const hexHash = (hash >>> 0).toString(16).toUpperCase();
+      const baseIssueId = `ISS-${hexHash}`;
       
       let issueId = baseIssueId;
       let counter = 1;
@@ -287,15 +293,11 @@ export async function POST(req: NextRequest) {
         status: 'processing'
       });
 
-      // 2. Prefix issueId with uploadId to ensure uniqueness across different file uploads
-      const finalIssues = parsedIssues.map(issue => {
-        const newIssueId = issue.issueId.replace(/^ISS-/, `ISS-${uploadId}-`);
-        return {
-          ...issue,
-          issueId: newIssueId,
-          uploadId
-        };
-      });
+      // 2. Tag issues with the uploadId
+      const finalIssues = parsedIssues.map(issue => ({
+        ...issue,
+        uploadId
+      }));
 
       // 3. Upsert issues and link them to the uploadId
       const { newRecords, updatedRecords } = await dbService.upsertIssues(finalIssues, uploadId);
