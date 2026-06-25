@@ -28,7 +28,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       desc: 'All imported tickets'
     },
     {
-      title: 'Open Issues',
+      title: 'Pending Issues',
       value: summary.openIssues,
       icon: Clock,
       color: 'text-amber-600 border-amber-200 bg-amber-50/60',
@@ -44,7 +44,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       desc: 'Actively being fixed'
     },
     {
-      title: 'Closed Issues',
+      title: 'Completed Issues',
       value: summary.closedIssues,
       icon: CheckCircle2,
       color: 'text-emerald-600 border-emerald-200 bg-emerald-50/60',

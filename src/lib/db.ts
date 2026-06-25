@@ -9,7 +9,7 @@ const LOCAL_DB_PATH = path.join(process.cwd(), 'local_db.json');
 
 // Helper to check if a date is overdue
 const isOverdue = (dueDateStr: string, status: string, currentDateStr = '2026-06-24') => {
-  if (status === 'Closed') return false;
+  if (status === 'Closed' || status === 'Completed') return false;
   return dueDateStr < currentDateStr;
 };
 
@@ -209,16 +209,16 @@ export const calculateKPIs = (issues: Issue[], currentDateStr = '2026-06-24'): D
     };
   }
 
-  const open = issues.filter(i => i.status === 'Open' || i.status === 'Pending').length;
+  const open = issues.filter(i => i.status === 'Pending').length;
   const inProgress = issues.filter(i => i.status === 'In Progress').length;
-  const closed = issues.filter(i => i.status === 'Closed').length;
-  const critical = issues.filter(i => i.status !== 'Closed' && i.priority === 'High').length;
+  const closed = issues.filter(i => i.status === 'Closed' || i.status === 'Completed').length;
+  const critical = issues.filter(i => i.status !== 'Closed' && i.status !== 'Completed' && i.priority === 'High').length;
   const overdue = issues.filter(i => isOverdue(i.dueDate, i.status, currentDateStr)).length;
 
   const resolutionRate = parseFloat(((closed / total) * 100).toFixed(1));
 
   // Average Resolution Time (for closed issues)
-  const closedIssuesList = issues.filter(i => i.status === 'Closed' && i.openDate && i.closedDate);
+  const closedIssuesList = issues.filter(i => (i.status === 'Closed' || i.status === 'Completed') && i.openDate && i.closedDate);
   let averageResolutionTimeDays = 0;
   if (closedIssuesList.length > 0) {
     const totalDays = closedIssuesList.reduce((sum, issue) => {

@@ -69,15 +69,13 @@ export async function GET(req: NextRequest) {
     }
 
     // 1. Status Distribution (Pie/Donut)
-    const openCount = issues.filter(i => i.status === 'Open').length;
     const inProgressCount = issues.filter(i => i.status === 'In Progress').length;
     const pendingCount = issues.filter(i => i.status === 'Pending').length;
-    const closedCount = issues.filter(i => i.status === 'Closed').length;
+    const completedCount = issues.filter(i => i.status === 'Completed' || i.status === 'Closed').length;
     const statusDistribution = [
-      { name: 'Open', value: openCount },
       { name: 'In Progress', value: inProgressCount },
       { name: 'Pending', value: pendingCount },
-      { name: 'Closed', value: closedCount }
+      { name: 'Completed', value: completedCount }
     ];
 
     // Helper to group and count
@@ -124,7 +122,7 @@ export async function GET(req: NextRequest) {
 
     // Resolution Time Trend
     const resolutionTimeTrend = sortedMonths.map(month => {
-      const monthlyClosed = issues.filter(i => i.status === 'Closed' && i.closedDate && i.closedDate.startsWith(month));
+      const monthlyClosed = issues.filter(i => (i.status === 'Completed' || i.status === 'Closed') && i.closedDate && i.closedDate.startsWith(month));
       if (monthlyClosed.length === 0) return { month, avgDays: 0 };
       
       const totalDays = monthlyClosed.reduce((sum, i) => {
@@ -167,7 +165,7 @@ export async function GET(req: NextRequest) {
       if (!topicsMap[topic]) {
         topicsMap[topic] = { open: 0, closed: 0 };
       }
-      if (i.status === 'Closed') {
+      if (i.status === 'Completed' || i.status === 'Closed') {
         topicsMap[topic].closed++;
       } else {
         topicsMap[topic].open++;
@@ -184,7 +182,7 @@ export async function GET(req: NextRequest) {
       .slice(0, 10); // top 10
 
     // 9. Aging Analysis (Open/In Progress issues age brackets)
-    const openIssues = issues.filter(i => i.status !== 'Closed' && i.openDate);
+    const openIssues = issues.filter(i => i.status !== 'Completed' && i.status !== 'Closed' && i.openDate);
     let age0_7 = 0;
     let age8_30 = 0;
     let age31_60 = 0;
@@ -207,7 +205,7 @@ export async function GET(req: NextRequest) {
 
     // Overdue Issues Table (extract up to 20 overdue issues for dashboard table)
     const overdueIssues = issues
-      .filter(i => i.status !== 'Closed' && i.dueDate < CURRENT_DATE_STR)
+      .filter(i => i.status !== 'Completed' && i.status !== 'Closed' && i.dueDate < CURRENT_DATE_STR)
       .map(i => {
         const daysOverdue = differenceInDays(CURRENT_DATE, parseISO(i.dueDate));
         return {
@@ -268,14 +266,14 @@ export async function GET(req: NextRequest) {
 
     // Calculate specific KPIs for this filtered set
     const totalCount = issues.length;
-    const closedCountKPI = issues.filter(i => i.status === 'Closed').length;
-    const openCountKPI = issues.filter(i => i.status === 'Open').length;
+    const closedCountKPI = issues.filter(i => i.status === 'Completed' || i.status === 'Closed').length;
+    const openCountKPI = issues.filter(i => i.status === 'Pending').length;
     const inProgressCountKPI = issues.filter(i => i.status === 'In Progress').length;
-    const overdueCountKPI = issues.filter(i => i.status !== 'Closed' && i.dueDate < CURRENT_DATE_STR).length;
-    const criticalCountKPI = issues.filter(i => i.status !== 'Closed' && i.priority === 'High').length;
+    const overdueCountKPI = issues.filter(i => i.status !== 'Completed' && i.status !== 'Closed' && i.dueDate < CURRENT_DATE_STR).length;
+    const criticalCountKPI = issues.filter(i => i.status !== 'Completed' && i.status !== 'Closed' && i.priority === 'High').length;
     const resolutionRateKPI = totalCount > 0 ? parseFloat(((closedCountKPI / totalCount) * 100).toFixed(1)) : 0;
     
-    const closedIssuesList = issues.filter(i => i.status === 'Closed' && i.openDate && i.closedDate);
+    const closedIssuesList = issues.filter(i => (i.status === 'Completed' || i.status === 'Closed') && i.openDate && i.closedDate);
     let avgTimeKPI = 0;
     if (closedIssuesList.length > 0) {
       const totalDays = closedIssuesList.reduce((sum, issue) => {

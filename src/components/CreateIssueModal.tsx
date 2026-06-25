@@ -38,7 +38,7 @@ export function CreateIssueModal({
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState(() => new Date().toISOString().substring(0, 10));
   const [priority, setPriority] = useState('Medium');
-  const [status, setStatus] = useState('Open');
+  const [status, setStatus] = useState('In Progress');
   const [location, setLocation] = useState('');
 
   const resetForm = () => {
@@ -48,7 +48,7 @@ export function CreateIssueModal({
     setDescription('');
     setDueDate(new Date().toISOString().substring(0, 10));
     setPriority('Medium');
-    setStatus('Open');
+    setStatus('In Progress');
     setLocation('');
     setError('');
     setSuccess(false);
@@ -223,10 +223,9 @@ export function CreateIssueModal({
                   onChange={(e) => setStatus(e.target.value)}
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
                 >
-                  <option value="Open">Open</option>
                   <option value="In Progress">In Progress</option>
                   <option value="Pending">Pending</option>
-                  <option value="Closed">Closed</option>
+                  <option value="Completed">Completed</option>
                 </select>
               </div>
 

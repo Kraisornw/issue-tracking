@@ -59,8 +59,8 @@ export async function POST(req: NextRequest) {
     const uniqueKey = `${formattedOpen}|${project}|${category}|${finalLocation}|${description}`;
     const issueId = `ISS-${hashCode(uniqueKey)}`;
     
-    const finalStatus = status || 'Open';
-    const closedDate = finalStatus === 'Closed' ? formattedDue : null;
+    const finalStatus = status || 'In Progress';
+    const closedDate = finalStatus === 'Completed' ? formattedDue : null;
     
     const issue: Issue = {
       issueId,

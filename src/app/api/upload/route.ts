@@ -201,12 +201,10 @@ export async function POST(req: NextRequest) {
       // 4. Normalized Action Item description (fallback if empty)
       const finalDescription = description || 'No details provided';
 
-      // 5. Standardize Status (default to 'Open')
+      // 5. Standardize Status (default to 'In Progress')
       const normalizedStatus = status.toLowerCase();
-      let finalStatus = 'Open';
-      if (normalizedStatus === 'in progress' || normalizedStatus === 'progress') {
-        finalStatus = 'In Progress';
-      } else if (normalizedStatus === 'pending') {
+      let finalStatus = 'In Progress';
+      if (normalizedStatus === 'pending') {
         finalStatus = 'Pending';
       } else if (
         normalizedStatus === 'closed' || 
@@ -217,11 +215,13 @@ export async function POST(req: NextRequest) {
         normalizedStatus === 'complete' ||
         normalizedStatus === 'completed'
       ) {
-        finalStatus = 'Closed';
+        finalStatus = 'Completed';
+      } else if (normalizedStatus === 'in progress' || normalizedStatus === 'progress') {
+        finalStatus = 'In Progress';
       }
 
-      // Auto closed date is set to due date if status is Closed, else null
-      const closedDateFormatted = finalStatus === 'Closed' ? (dueDateFormatted || openDateFormatted) : null;
+      // Auto closed date is set to due date if status is Completed, else null
+      const closedDateFormatted = finalStatus === 'Completed' ? (dueDateFormatted || openDateFormatted) : null;
 
       // 6. Generate stable hash based on issue identity fields (Date, Project, Category, Location, Description)
       const uniqueKey = `${openDateFormatted}|${finalProject}|${category}|${location}|${finalDescription}`;
