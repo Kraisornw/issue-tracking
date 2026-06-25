@@ -515,6 +515,40 @@ class DatabaseService {
       return summary;
     }
   }
+
+  async clearAllData(): Promise<void> {
+    if (hasSupabaseConfig && supabase) {
+      // Delete all issues
+      const { error: issuesErr } = await supabase.from('issues').delete().neq('issueId', '');
+      // Delete all history
+      const { error: historyErr } = await supabase.from('upload_history').delete().neq('id', 0);
+      // Delete dashboard cache
+      const { error: cacheErr } = await supabase.from('dashboard_cache').delete().neq('key', '');
+      
+      if (issuesErr || historyErr || cacheErr) {
+        console.error('Supabase clearAllData error:', { issuesErr, historyErr, cacheErr });
+        throw new Error('Failed to clear database tables');
+      }
+    } else if (hasFirebaseConfig && db) {
+      // Firebase clear logic
+      const issuesSnapshot = await db.collection('issues').get();
+      const historySnapshot = await db.collection('upload_history').get();
+      const cacheSnapshot = await db.collection('dashboard_cache').get();
+      
+      const batch = db.batch();
+      issuesSnapshot.docs.forEach((doc: any) => batch.delete(doc.ref));
+      historySnapshot.docs.forEach((doc: any) => batch.delete(doc.ref));
+      cacheSnapshot.docs.forEach((doc: any) => batch.delete(doc.ref));
+      await batch.commit();
+    } else {
+      // Local fallback DB clear
+      saveLocalData({
+        issues: [],
+        uploadHistory: [],
+        dashboardCache: null
+      });
+    }
+  }
 }
 
 export const dbService = new DatabaseService();

@@ -16,3 +16,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    await dbService.clearAllData();
+    return NextResponse.json({ success: true, message: 'All data cleared successfully' });
+  } catch (error: any) {
+    console.error('Error clearing data:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
+}

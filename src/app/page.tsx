@@ -42,7 +42,8 @@ import {
   History,
   Database,
   Search,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Trash2
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -184,6 +185,29 @@ export default function HomePage() {
       endDate: ''
     });
     setSearchQuery('');
+  };
+
+  // Reset database function
+  const handleClearAllData = async () => {
+    const confirmed = window.confirm("Are you sure you want to clear all issues and upload history? This will completely empty the database and cannot be undone.");
+    if (!confirmed) return;
+    
+    setLoading(true);
+    try {
+      const res = await fetch('/api/issues', { method: 'DELETE' });
+      if (res.ok) {
+        alert("Database cleared successfully!");
+        fetchData();
+      } else {
+        const err = await res.json();
+        alert(`Error: ${err.error || 'Failed to clear data'}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to connect to the database reset API.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 1. Export CSV (Redirects directly to endpoint)
@@ -360,6 +384,16 @@ export default function HomePage() {
               </button>
             </div>
           </div>
+
+          {/* Reset Database Button */}
+          <Button 
+            onClick={handleClearAllData}
+            variant="ghost" 
+            className="text-red-500 hover:text-red-750 hover:bg-red-50/60 border border-red-200 h-9 px-3 py-2 text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-sm transition-all"
+            disabled={loading}
+          >
+            <Trash2 className="w-4 h-4 text-red-500" /> Reset Database
+          </Button>
 
           {/* Collapsible filter toggle for small screens */}
           <Button 
