@@ -22,31 +22,26 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Form States
+  // Form States corresponding exactly to Excel Columns:
+  // Date | Topic / Agenda | Discussion | Action Item | Due Date | Priority | Status | Comments
+  const [openDate, setOpenDate] = useState(() => new Date().toISOString().substring(0, 10));
   const [project, setProject] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
-  const [openDate, setOpenDate] = useState(() => new Date().toISOString().substring(0, 10));
   const [dueDate, setDueDate] = useState(() => new Date().toISOString().substring(0, 10));
   const [priority, setPriority] = useState('Medium');
-  const [severity, setSeverity] = useState('Major');
   const [status, setStatus] = useState('Open');
   const [location, setLocation] = useState('');
-  const [responsible, setResponsible] = useState('');
-  const [discipline, setDiscipline] = useState('');
 
   const resetForm = () => {
+    setOpenDate(new Date().toISOString().substring(0, 10));
     setProject('');
     setCategory('');
     setDescription('');
-    setOpenDate(new Date().toISOString().substring(0, 10));
     setDueDate(new Date().toISOString().substring(0, 10));
     setPriority('Medium');
-    setSeverity('Major');
     setStatus('Open');
     setLocation('');
-    setResponsible('');
-    setDiscipline('');
     setError('');
     setSuccess(false);
   };
@@ -81,11 +76,11 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
           openDate,
           dueDate,
           priority,
-          severity,
           status,
           location: location.trim() || 'Unassigned',
-          responsible: responsible.trim() || 'Unassigned',
-          discipline: discipline.trim() || 'General',
+          severity: 'Major',
+          responsible: 'Unassigned',
+          discipline: 'General',
         }),
       });
 
@@ -122,7 +117,7 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
 
         {success ? (
           <div className="flex flex-col items-center justify-center py-8 gap-3">
-            <CheckCircle2 className="w-12 h-12 text-emerald-505 animate-bounce" />
+            <CheckCircle2 className="w-12 h-12 text-emerald-500 animate-bounce" />
             <p className="font-semibold text-slate-800 text-lg">เพิ่มข้อมูล Issue สำเร็จ!</p>
             <p className="text-sm text-slate-500">ระบบจะทำการปิดหน้าต่างนี้และรีเฟรชข้อมูลโดยอัตโนมัติ...</p>
           </div>
@@ -136,7 +131,31 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
             )}
 
             <div className="grid grid-cols-2 gap-4 text-xs">
-              {/* Project / Topic */}
+              {/* Date */}
+              <div>
+                <label className="block font-semibold text-slate-600 mb-1">Date (วันที่เริ่ม) *</label>
+                <input 
+                  type="date" 
+                  value={openDate}
+                  onChange={(e) => setOpenDate(e.target.value)}
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800 font-mono"
+                  required
+                />
+              </div>
+
+              {/* Due Date */}
+              <div>
+                <label className="block font-semibold text-slate-600 mb-1">Due Date (กำหนดเสร็จ) *</label>
+                <input 
+                  type="date" 
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800 font-mono"
+                  required
+                />
+              </div>
+
+              {/* Topic / Agenda */}
               <div className="col-span-2 sm:col-span-1">
                 <label className="block font-semibold text-slate-600 mb-1">Topic / Agenda (หัวข้อ) *</label>
                 <input 
@@ -149,9 +168,9 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
                 />
               </div>
 
-              {/* Category */}
+              {/* Discussion */}
               <div className="col-span-2 sm:col-span-1">
-                <label className="block font-semibold text-slate-600 mb-1">Discussion Category (หมวดหมู่) *</label>
+                <label className="block font-semibold text-slate-600 mb-1">Discussion (หมวดหมู่) *</label>
                 <input 
                   type="text" 
                   value={category}
@@ -159,66 +178,6 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
                   placeholder="เช่น Architectural, MEP"
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
                   required
-                />
-              </div>
-
-              {/* Location */}
-              <div>
-                <label className="block font-semibold text-slate-600 mb-1">Comment / Location (สถานที่)</label>
-                <input 
-                  type="text" 
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="เช่น Level 15, Basement 1"
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
-                />
-              </div>
-
-              {/* Responsible */}
-              <div>
-                <label className="block font-semibold text-slate-600 mb-1">Responsible (ผู้รับผิดชอบ)</label>
-                <input 
-                  type="text" 
-                  value={responsible}
-                  onChange={(e) => setResponsible(e.target.value)}
-                  placeholder="เช่น Contractor A"
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
-                />
-              </div>
-
-              {/* Open Date */}
-              <div>
-                <label className="block font-semibold text-slate-600 mb-1">Open Date (วันที่เริ่ม) *</label>
-                <input 
-                  type="date" 
-                  value={openDate}
-                  onChange={(e) => setOpenDate(e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-850 font-mono"
-                  required
-                />
-              </div>
-
-              {/* Due Date */}
-              <div>
-                <label className="block font-semibold text-slate-600 mb-1">Due Date (กำหนดเสร็จ) *</label>
-                <input 
-                  type="date" 
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-850 font-mono"
-                  required
-                />
-              </div>
-
-              {/* Discipline */}
-              <div>
-                <label className="block font-semibold text-slate-600 mb-1">Discipline (สาขางาน)</label>
-                <input 
-                  type="text" 
-                  value={discipline}
-                  onChange={(e) => setDiscipline(e.target.value)}
-                  placeholder="เช่น AR, ST, MEP"
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
                 />
               </div>
 
@@ -233,20 +192,6 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
                   <option value="Low">Low</option>
                   <option value="Medium">Medium</option>
                   <option value="High">High</option>
-                </select>
-              </div>
-
-              {/* Severity */}
-              <div>
-                <label className="block font-semibold text-slate-600 mb-1">Severity (ความรุนแรง)</label>
-                <select 
-                  value={severity}
-                  onChange={(e) => setSeverity(e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
-                >
-                  <option value="Minor">Minor</option>
-                  <option value="Major">Major</option>
-                  <option value="Critical">Critical</option>
                 </select>
               </div>
 
@@ -265,9 +210,21 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
                 </select>
               </div>
 
-              {/* Description */}
+              {/* Comments */}
               <div className="col-span-2">
-                <label className="block font-semibold text-slate-600 mb-1">Action Item / Description (รายละเอียดงาน) *</label>
+                <label className="block font-semibold text-slate-600 mb-1">Comments (ความคิดเห็น)</label>
+                <input 
+                  type="text" 
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="กรอกความคิดเห็นเพิ่มเติม..."
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
+                />
+              </div>
+
+              {/* Action Item */}
+              <div className="col-span-2">
+                <label className="block font-semibold text-slate-600 mb-1">Action Item (รายละเอียดงาน) *</label>
                 <textarea 
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
