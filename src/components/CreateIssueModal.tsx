@@ -162,7 +162,7 @@ export function CreateIssueModal({ open, onOpenChange, onSuccess }: CreateIssueM
                   type="text" 
                   value={project}
                   onChange={(e) => setProject(e.target.value)}
-                  placeholder="เช่น ETON, MAVEN"
+                  placeholder="เช่น Document, Monitoring"
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
                   required
                 />
