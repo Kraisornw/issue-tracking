@@ -302,12 +302,16 @@ export async function POST(req: NextRequest) {
       }
     } else {
       // Save locally to public/uploads
-      const localUploadDir = path.join(process.cwd(), 'public', 'uploads', String(year), String(month));
-      if (!fs.existsSync(localUploadDir)) {
-        fs.mkdirSync(localUploadDir, { recursive: true });
+      try {
+        const localUploadDir = path.join(process.cwd(), 'public', 'uploads', String(year), String(month));
+        if (!fs.existsSync(localUploadDir)) {
+          fs.mkdirSync(localUploadDir, { recursive: true });
+        }
+        const localFilePath = path.join(localUploadDir, `${Date.now()}_${fileName}`);
+        fs.writeFileSync(localFilePath, buffer);
+      } catch (localWriteError) {
+        console.warn('Failed to save file locally (e.g. read-only filesystem on Vercel):', localWriteError);
       }
-      const localFilePath = path.join(localUploadDir, `${Date.now()}_${fileName}`);
-      fs.writeFileSync(localFilePath, buffer);
     }
 
     // Add success history log
