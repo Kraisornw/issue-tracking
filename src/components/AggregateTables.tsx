@@ -71,7 +71,7 @@ export function AggregateTables({ repeated, overdue, topics }: AggregateTablesPr
               <TableBody>
                 {repeated.map((row, idx) => (
                   <TableRow key={idx} className="border-slate-100 hover:bg-slate-50/50 text-slate-700">
-                    <TableCell className="font-medium text-slate-800 py-2.5 text-xs truncate max-w-[150px]">{row.category}</TableCell>
+                    <TableCell className="font-medium text-slate-800 py-3 text-xs whitespace-normal break-words leading-relaxed max-w-[220px]">{row.category}</TableCell>
                     <TableCell className="text-right py-2.5 font-bold font-mono text-slate-800 text-xs">{row.frequency}</TableCell>
                     <TableCell className="text-right py-2.5 font-mono text-slate-500 text-xs">{row.percentage}%</TableCell>
                   </TableRow>
@@ -108,7 +108,7 @@ export function AggregateTables({ repeated, overdue, topics }: AggregateTablesPr
                     <TableCell className="font-semibold text-slate-800 py-2.5 text-xs">
                       <div className="flex flex-col">
                         <span>{row.issueId}</span>
-                        <span className="text-[10px] text-slate-400 font-normal truncate max-w-[120px]">{row.project}</span>
+                        <span className="text-[10px] text-slate-400 font-normal whitespace-normal break-words leading-normal max-w-[150px]">{row.project}</span>
                       </div>
                     </TableCell>
                     <TableCell className="py-2.5 text-xs">
@@ -154,7 +154,7 @@ export function AggregateTables({ repeated, overdue, topics }: AggregateTablesPr
               <TableBody>
                 {topics.map((row, idx) => (
                   <TableRow key={idx} className="border-slate-100 hover:bg-slate-50/50 text-slate-700">
-                    <TableCell className="font-medium text-slate-800 py-2.5 text-xs truncate max-w-[120px]" title={row.name}>{row.name}</TableCell>
+                    <TableCell className="font-medium text-slate-800 py-3 text-xs whitespace-normal break-words leading-relaxed max-w-[180px]" title={row.name}>{row.name}</TableCell>
                     <TableCell className="text-center py-2.5 font-bold text-amber-600 font-mono text-xs">{row.open}</TableCell>
                     <TableCell className="text-center py-2.5 font-bold text-emerald-600 font-mono text-xs">{row.closed}</TableCell>
                     <TableCell className="text-right py-2.5 font-bold font-mono text-xs">
