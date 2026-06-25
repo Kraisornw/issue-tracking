@@ -273,22 +273,58 @@ export async function POST(req: NextRequest) {
     }
 
     // Process Incremental Updates to Database
-    const { newRecords, updatedRecords } = await dbService.upsertIssues(parsedIssues);
+    let uploadId: string | number | null = null;
+    try {
+      // 1. Create a processing history log to get the upload ID
+      uploadId = await dbService.addUploadHistory({
+        fileName,
+        totalRecords: parsedIssues.length,
+        newRecords: 0,
+        updatedRecords: 0,
+        processingTimeMs: 0,
+        status: 'processing'
+      });
 
-    // Save File to Storage
-    const year = new Date().getFullYear();
-    const month = String(new Date().getMonth() + 1).padStart(2, '0');
-    
-    if (hasFirebaseConfig && storage && !hasSupabaseConfig) {
-      try {
-        const storagePath = `uploads/${year}/${month}/${Date.now()}_${fileName}`;
-        const bucketFile = storage.bucket().file(storagePath);
-        await bucketFile.save(buffer, {
-          metadata: { contentType: file.type }
-        });
-      } catch (storageError) {
-        console.error('Failed to upload file to Firebase Storage, saving locally as fallback:', storageError);
-        // Fallback to local storage so that database write is NOT blocked by GCS bucket name mismatch/setup issues
+      // 2. Prefix issueId with uploadId to ensure uniqueness across different file uploads
+      const finalIssues = parsedIssues.map(issue => {
+        const newIssueId = issue.issueId.replace(/^ISS-/, `ISS-${uploadId}-`);
+        return {
+          ...issue,
+          issueId: newIssueId,
+          uploadId
+        };
+      });
+
+      // 3. Upsert issues and link them to the uploadId
+      const { newRecords, updatedRecords } = await dbService.upsertIssues(finalIssues, uploadId);
+
+      // Save File to Storage
+      const year = new Date().getFullYear();
+      const month = String(new Date().getMonth() + 1).padStart(2, '0');
+      
+      if (hasFirebaseConfig && storage && !hasSupabaseConfig) {
+        try {
+          const storagePath = `uploads/${year}/${month}/${Date.now()}_${fileName}`;
+          const bucketFile = storage.bucket().file(storagePath);
+          await bucketFile.save(buffer, {
+            metadata: { contentType: file.type }
+          });
+        } catch (storageError) {
+          console.error('Failed to upload file to Firebase Storage, saving locally as fallback:', storageError);
+          // Fallback to local storage so that database write is NOT blocked by GCS bucket name mismatch/setup issues
+          try {
+            const localUploadDir = path.join(process.cwd(), 'public', 'uploads', String(year), String(month));
+            if (!fs.existsSync(localUploadDir)) {
+              fs.mkdirSync(localUploadDir, { recursive: true });
+            }
+            const localFilePath = path.join(localUploadDir, `${Date.now()}_${fileName}`);
+            fs.writeFileSync(localFilePath, buffer);
+          } catch (localWriteError) {
+            console.error('Failed to save file locally:', localWriteError);
+          }
+        }
+      } else {
+        // Save locally to public/uploads
         try {
           const localUploadDir = path.join(process.cwd(), 'public', 'uploads', String(year), String(month));
           if (!fs.existsSync(localUploadDir)) {
@@ -297,42 +333,43 @@ export async function POST(req: NextRequest) {
           const localFilePath = path.join(localUploadDir, `${Date.now()}_${fileName}`);
           fs.writeFileSync(localFilePath, buffer);
         } catch (localWriteError) {
-          console.error('Failed to save file locally:', localWriteError);
+          console.warn('Failed to save file locally (e.g. read-only filesystem on Vercel):', localWriteError);
         }
       }
-    } else {
-      // Save locally to public/uploads
-      try {
-        const localUploadDir = path.join(process.cwd(), 'public', 'uploads', String(year), String(month));
-        if (!fs.existsSync(localUploadDir)) {
-          fs.mkdirSync(localUploadDir, { recursive: true });
+
+      // 3. Update the history log to success
+      const elapsed = Date.now() - startTime;
+      await dbService.updateUploadHistory(uploadId, {
+        newRecords,
+        updatedRecords,
+        processingTimeMs: elapsed,
+        status: 'success'
+      });
+
+      return NextResponse.json({
+        success: true,
+        fileName,
+        totalRecords: parsedIssues.length,
+        newRecords,
+        updatedRecords,
+        processingTime: `${(elapsed / 1000).toFixed(1)}s`
+      });
+    } catch (dbError: any) {
+      console.error('Error during database update, updating history to failed:', dbError);
+      if (uploadId !== null) {
+        try {
+          const elapsed = Date.now() - startTime;
+          await dbService.updateUploadHistory(uploadId, {
+            status: 'failed',
+            processingTimeMs: elapsed,
+            errors: [dbError.message || 'Internal Database Error during upsert']
+          });
+        } catch (updateErr) {
+          console.error('Failed to mark upload history as failed:', updateErr);
         }
-        const localFilePath = path.join(localUploadDir, `${Date.now()}_${fileName}`);
-        fs.writeFileSync(localFilePath, buffer);
-      } catch (localWriteError) {
-        console.warn('Failed to save file locally (e.g. read-only filesystem on Vercel):', localWriteError);
       }
+      throw dbError; // Rethrow to let general catch block return 500 response
     }
-
-    // Add success history log
-    const elapsed = Date.now() - startTime;
-    await dbService.addUploadHistory({
-      fileName,
-      totalRecords: parsedIssues.length,
-      newRecords,
-      updatedRecords,
-      processingTimeMs: elapsed,
-      status: 'success'
-    });
-
-    return NextResponse.json({
-      success: true,
-      fileName,
-      totalRecords: parsedIssues.length,
-      newRecords,
-      updatedRecords,
-      processingTime: `${(elapsed / 1000).toFixed(1)}s`
-    });
 
   } catch (error: any) {
     console.error('Upload handler error:', error);

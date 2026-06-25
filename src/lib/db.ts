@@ -268,7 +268,7 @@ class DatabaseService {
     }
   }
 
-  async upsertIssues(issuesList: Issue[]): Promise<{ newRecords: number; updatedRecords: number }> {
+  async upsertIssues(issuesList: Issue[], uploadId?: string | number): Promise<{ newRecords: number; updatedRecords: number }> {
     let newRecords = 0;
     let updatedRecords = 0;
 
@@ -278,18 +278,20 @@ class DatabaseService {
       existingIssues.forEach(i => existingMap.set(i.issueId, i));
 
       const toUpsert: any[] = [];
+      const numericUploadId = uploadId !== undefined && uploadId !== null && !isNaN(Number(uploadId)) ? Number(uploadId) : uploadId;
       
       for (const issue of issuesList) {
         const existing = existingMap.get(issue.issueId);
         
         if (existing) {
           // Check if changed
-          const isChanged = JSON.stringify({ ...existing, createdAt: undefined, updatedAt: undefined }) !== 
-                            JSON.stringify({ ...issue, createdAt: undefined, updatedAt: undefined });
+          const isChanged = JSON.stringify({ ...existing, createdAt: undefined, updatedAt: undefined, uploadId: undefined }) !== 
+                            JSON.stringify({ ...issue, createdAt: undefined, updatedAt: undefined, uploadId: undefined });
           
           if (isChanged) {
             toUpsert.push({
               ...issue,
+              uploadId: numericUploadId || null,
               createdAt: existing.createdAt || new Date().toISOString(),
               updatedAt: new Date().toISOString()
             });
@@ -298,6 +300,7 @@ class DatabaseService {
         } else {
           toUpsert.push({
             ...issue,
+            uploadId: numericUploadId || null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           });
@@ -338,12 +341,13 @@ class DatabaseService {
         
         if (existing) {
           // Check if changed
-          const isChanged = JSON.stringify({ ...existing, createdAt: undefined, updatedAt: undefined }) !== 
-                            JSON.stringify({ ...issue, createdAt: undefined, updatedAt: undefined });
+          const isChanged = JSON.stringify({ ...existing, createdAt: undefined, updatedAt: undefined, uploadId: undefined }) !== 
+                            JSON.stringify({ ...issue, createdAt: undefined, updatedAt: undefined, uploadId: undefined });
           
           if (isChanged) {
             batch.set(docRef, {
               ...issue,
+              uploadId: uploadId || null,
               createdAt: existing.createdAt || new Date().toISOString(),
               updatedAt: new Date().toISOString()
             }, { merge: true });
@@ -352,6 +356,7 @@ class DatabaseService {
         } else {
           batch.set(docRef, {
             ...issue,
+            uploadId: uploadId || null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           });
@@ -378,13 +383,14 @@ class DatabaseService {
       for (const issue of issuesList) {
         const existing = existingMap.get(issue.issueId);
         if (existing) {
-          const isChanged = JSON.stringify({ ...existing, createdAt: undefined, updatedAt: undefined }) !== 
-                            JSON.stringify({ ...issue, createdAt: undefined, updatedAt: undefined });
+          const isChanged = JSON.stringify({ ...existing, createdAt: undefined, updatedAt: undefined, uploadId: undefined }) !== 
+                            JSON.stringify({ ...issue, createdAt: undefined, updatedAt: undefined, uploadId: undefined });
           
           if (isChanged) {
             const index = updatedIssues.findIndex(i => i.issueId === issue.issueId);
             updatedIssues[index] = {
               ...issue,
+              uploadId: uploadId || null,
               createdAt: existing.createdAt || new Date().toISOString(),
               updatedAt: new Date().toISOString()
             };
@@ -393,6 +399,7 @@ class DatabaseService {
         } else {
           updatedIssues.push({
             ...issue,
+            uploadId: uploadId || null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           });
@@ -445,30 +452,109 @@ class DatabaseService {
     }
   }
 
-  async addUploadHistory(record: Omit<UploadHistory, 'id' | 'uploadDate'>): Promise<void> {
+  async addUploadHistory(record: Omit<UploadHistory, 'id' | 'uploadDate'>): Promise<string | number> {
     if (hasSupabaseConfig && supabase) {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('upload_history')
         .insert({
           ...record,
           uploadDate: new Date().toISOString()
-        });
+        })
+        .select('id')
+        .single();
       if (error) {
         console.error('Supabase addUploadHistory error:', error);
         throw error;
       }
+      return data.id;
     } else if (hasFirebaseConfig && db) {
-      await db.collection('upload_history').add({
+      const docRef = await db.collection('upload_history').add({
         ...record,
         uploadDate: new Date().toISOString()
       });
+      return docRef.id;
     } else {
       const data = getLocalData();
+      const id = `hist-${Date.now()}`;
       data.uploadHistory.push({
-        id: `hist-${Date.now()}`,
+        id,
         ...record,
         uploadDate: new Date().toISOString()
       });
+      saveLocalData(data);
+      return id;
+    }
+  }
+
+  async updateUploadHistory(id: string | number, updates: Partial<UploadHistory>): Promise<void> {
+    const numericId = typeof id === 'string' && !isNaN(Number(id)) ? Number(id) : id;
+    if (hasSupabaseConfig && supabase) {
+      const { error } = await supabase
+        .from('upload_history')
+        .update(updates)
+        .eq('id', numericId);
+      if (error) {
+        console.error('Supabase updateUploadHistory error:', error);
+        throw error;
+      }
+    } else if (hasFirebaseConfig && db) {
+      await db.collection('upload_history').doc(id as string).update(updates);
+    } else {
+      const data = getLocalData();
+      const index = data.uploadHistory.findIndex(h => h.id === id || h.id === numericId);
+      if (index !== -1) {
+        data.uploadHistory[index] = {
+          ...data.uploadHistory[index],
+          ...updates
+        };
+        saveLocalData(data);
+      }
+    }
+  }
+
+  async deleteUploadHistory(id: string | number): Promise<void> {
+    const numericId = typeof id === 'string' && !isNaN(Number(id)) ? Number(id) : id;
+
+    if (hasSupabaseConfig && supabase) {
+      // In Supabase, ON DELETE CASCADE handles deleting related issues.
+      const { error } = await supabase
+        .from('upload_history')
+        .delete()
+        .eq('id', numericId);
+      
+      if (error) {
+        console.error('Supabase deleteUploadHistory error:', error);
+        throw error;
+      }
+    } else if (hasFirebaseConfig && db) {
+      const batch = db.batch();
+      // Find all issues with uploadId == id
+      const issuesSnapshot = await db.collection('issues').where('uploadId', '==', id).get();
+      issuesSnapshot.docs.forEach((doc: any) => batch.delete(doc.ref));
+      // Delete history record
+      batch.delete(db.collection('upload_history').doc(id as string));
+      await batch.commit();
+    } else {
+      const data = getLocalData();
+      data.issues = data.issues.filter(i => i.uploadId !== id && i.uploadId !== numericId);
+      data.uploadHistory = data.uploadHistory.filter(h => h.id !== id && h.id !== numericId);
+      saveLocalData(data);
+    }
+
+    // Refresh cache
+    const allIssues = await this.getIssues();
+    const newSummary = calculateKPIs(allIssues);
+    if (hasSupabaseConfig && supabase) {
+      await supabase.from('dashboard_cache').upsert({
+        key: 'summary',
+        data: newSummary,
+        updatedAt: new Date().toISOString()
+      });
+    } else if (hasFirebaseConfig && db) {
+      await db.collection('dashboard_cache').doc('summary').set(newSummary);
+    } else {
+      const data = getLocalData();
+      data.dashboardCache = newSummary;
       saveLocalData(data);
     }
   }

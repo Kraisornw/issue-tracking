@@ -210,6 +210,25 @@ export default function HomePage() {
     }
   };
 
+  const handleDeleteUploadHistory = async (id: string | number) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/upload-history?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert("ลบประวัติการนำเข้าและข้อมูล Issues สำเร็จ!");
+        fetchData();
+      } else {
+        const err = await res.json();
+        alert(`เกิดข้อผิดพลาด: ${err.error || 'Failed to delete upload log'}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to connect to the upload history delete API.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 1. Export CSV (Redirects directly to endpoint)
   const exportCsv = () => {
     const queryParams = new URLSearchParams();
@@ -588,7 +607,7 @@ export default function HomePage() {
             )}
 
             {activeTab === 'history' && (
-              <UploadHistoryTable history={history} />
+              <UploadHistoryTable history={history} onDelete={handleDeleteUploadHistory} />
             )}
 
           </div>

@@ -14,6 +14,7 @@ export interface Issue {
   location: string;
   createdAt?: string; // ISO string
   updatedAt?: string; // ISO string
+  uploadId?: string | number | null;
 }
 
 export interface UploadHistory {
@@ -24,7 +25,7 @@ export interface UploadHistory {
   newRecords: number;
   updatedRecords: number;
   processingTimeMs: number;
-  status: 'success' | 'failed';
+  status: 'success' | 'failed' | 'processing';
   errors?: string[];
 }
 

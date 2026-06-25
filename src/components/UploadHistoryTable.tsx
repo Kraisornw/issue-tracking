@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -12,14 +12,15 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { UploadHistory } from '@/types';
-import { ChevronDown, ChevronUp, FileSpreadsheet, AlertCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, FileSpreadsheet, AlertCircle, Trash2 } from 'lucide-react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 
 interface UploadHistoryTableProps {
   history: UploadHistory[];
+  onDelete?: (id: string | number) => void;
 }
 
-export function UploadHistoryTable({ history }: UploadHistoryTableProps) {
+export function UploadHistoryTable({ history, onDelete }: UploadHistoryTableProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleRow = (id: string) => {
@@ -44,6 +45,14 @@ export function UploadHistoryTable({ history }: UploadHistoryTableProps) {
     }
   };
 
+  const handleDeleteClick = (id: string | number, fileName: string) => {
+    if (window.confirm(`คุณต้องการลบประวัติการนำเข้าไฟล์ "${fileName}" หรือไม่?\n\nการดำเนินการนี้จะลบข้อมูล Issue ทั้งหมดที่นำเข้าในรอบนี้ออกจากฐานข้อมูลโดยอัตโนมัติ และไม่สามารถย้อนกลับได้`)) {
+      if (onDelete) {
+        onDelete(id);
+      }
+    }
+  };
+
   return (
     <div className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-sm shadow-slate-100/50">
       <Table>
@@ -57,12 +66,13 @@ export function UploadHistoryTable({ history }: UploadHistoryTableProps) {
             <TableHead className="text-slate-500 font-bold text-center">Updated</TableHead>
             <TableHead className="text-slate-500 font-bold text-center">Duration</TableHead>
             <TableHead className="text-slate-500 font-bold text-right">Status</TableHead>
+            <TableHead className="text-slate-500 font-bold text-center w-[80px]">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {history.length === 0 ? (
             <TableRow className="border-slate-100 hover:bg-transparent">
-              <TableCell colSpan={8} className="h-32 text-center text-slate-400 text-sm">
+              <TableCell colSpan={9} className="h-32 text-center text-slate-400 text-sm">
                 No uploads recorded yet. Upload an Excel file to get started.
               </TableCell>
             </TableRow>
@@ -73,9 +83,8 @@ export function UploadHistoryTable({ history }: UploadHistoryTableProps) {
               const hasErrors = record.errors && record.errors.length > 0;
               
               return (
-                <>
+                <Fragment key={recordId}>
                   <TableRow 
-                    key={recordId} 
                     className={`border-slate-100 hover:bg-slate-50/50 text-slate-700 transition-colors ${
                       record.status === 'failed' ? 'hover:bg-rose-50/20' : ''
                     }`}
@@ -114,17 +123,34 @@ export function UploadHistoryTable({ history }: UploadHistoryTableProps) {
                       <Badge className={
                         record.status === 'success' 
                           ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold'
+                          : record.status === 'processing'
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 font-bold animate-pulse'
                           : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 font-bold'
                       }>
-                        {record.status === 'success' ? 'Success' : 'Failed'}
+                        {record.status === 'success' ? 'Success' : record.status === 'processing' ? 'Processing' : 'Failed'}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="p-2 text-center">
+                      {record.status !== 'processing' ? (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8 text-rose-500 border-slate-200 hover:text-white hover:bg-rose-600 hover:border-rose-600 transition-colors shadow-sm"
+                          onClick={() => handleDeleteClick(recordId, record.fileName)}
+                          title="ลบประวัตินำเข้าและข้อมูลทั้งหมดในรอบนี้"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 font-medium animate-pulse">รอระบบ...</span>
+                      )}
                     </TableCell>
                   </TableRow>
                   
                   {/* Expanded error row */}
                   {isExpanded && hasErrors && (
                     <TableRow className="bg-slate-50/50 hover:bg-slate-50 border-slate-100">
-                      <TableCell colSpan={8} className="p-4">
+                      <TableCell colSpan={9} className="p-4">
                         <div className="space-y-2 bg-white rounded-lg p-4 border border-rose-200 shadow-sm">
                           <p className="text-xs font-bold text-rose-700 flex items-center gap-1.5 uppercase tracking-wider">
                             <AlertCircle className="w-4 h-4" /> Validation Failure Log ({record.errors?.length} items)
@@ -141,7 +167,7 @@ export function UploadHistoryTable({ history }: UploadHistoryTableProps) {
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </Fragment>
               );
             })
           )}
