@@ -315,7 +315,134 @@ export default function HomePage() {
     XLSX.writeFile(workbook, `issues_report_${new Date().toISOString().substring(0, 10)}.xlsx`);
   };
 
-  // 3. Export PDF (Capture screenshot of dashboard)
+  // 3. Export Word (.doc)
+  const exportDoc = () => {
+    let filtered = [...issues];
+    if (filters.project) filtered = filtered.filter(i => i.project === filters.project);
+    if (filters.category) filtered = filtered.filter(i => i.category === filters.category);
+    if (filters.status) filtered = filtered.filter(i => i.status === filters.status);
+    if (filters.priority) filtered = filtered.filter(i => i.priority === filters.priority);
+    if (filters.startDate) filtered = filtered.filter(i => i.openDate >= filters.startDate);
+    if (filters.endDate) filtered = filtered.filter(i => i.openDate <= filters.endDate);
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(i => 
+        i.issueId.toLowerCase().includes(q) ||
+        i.description.toLowerCase().includes(q) ||
+        i.location.toLowerCase().includes(q)
+      );
+    }
+
+    let htmlContent = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <title>Issues Report</title>
+        <!--[if gte mso 9]>
+        <xml>
+          <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+          </w:WordDocument>
+        </xml>
+        <![endif]-->
+        <style>
+          body {
+            font-family: 'Arial', sans-serif;
+            font-size: 10pt;
+          }
+          h1 {
+            color: #4f46e5;
+            font-size: 18pt;
+            margin-bottom: 20px;
+            text-align: center;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+          }
+          th {
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 8px;
+            font-weight: bold;
+            text-align: left;
+            font-size: 10pt;
+          }
+          td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            font-size: 9pt;
+            vertical-align: top;
+          }
+          .meta-info {
+            margin-bottom: 15px;
+            color: #475569;
+            font-size: 9pt;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Issues Report</h1>
+        <div class="meta-info">
+          <strong>Export Date:</strong> ${new Date().toLocaleDateString('th-TH')} ${new Date().toLocaleTimeString('th-TH')}<br/>
+          <strong>Total Records:</strong> ${filtered.length} issues
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 15%;">Issue ID</th>
+              <th style="width: 10%;">Date</th>
+              <th style="width: 12%;">Topic / Agenda</th>
+              <th style="width: 12%;">Discussion</th>
+              <th style="width: 25%;">Action Item</th>
+              <th style="width: 10%;">Due Date</th>
+              <th style="width: 8%;">Priority</th>
+              <th style="width: 8%;">Status</th>
+              <th style="width: 10%;">Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    filtered.forEach(issue => {
+      htmlContent += `
+        <tr>
+          <td style="font-family: 'Courier New'; font-weight: bold; color: #4f46e5;">${issue.issueId}</td>
+          <td>${issue.openDate}</td>
+          <td>${issue.project}</td>
+          <td>${issue.category}</td>
+          <td>${issue.description}</td>
+          <td>${issue.dueDate}</td>
+          <td>${issue.priority}</td>
+          <td>${issue.status}</td>
+          <td>${issue.location || '-'}</td>
+        </tr>
+      `;
+    });
+
+    htmlContent += `
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob(['\\ufeff' + htmlContent], {
+      type: 'application/msword;charset=utf-8'
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `issues_report_${new Date().toISOString().substring(0, 10)}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // 4. Export PDF (Capture screenshot of dashboard)
   const exportPdf = async () => {
     const dashboardElement = document.getElementById('dashboard-content');
     if (!dashboardElement) return;
@@ -426,6 +553,12 @@ export default function HomePage() {
                 className="w-full text-left text-xs text-slate-600 hover:text-slate-800 hover:bg-slate-50 p-2 rounded flex items-center gap-2 font-semibold"
               >
                 <FileSpreadsheet className="w-4 h-4 text-emerald-600" /> Export Excel (.xlsx)
+              </button>
+              <button 
+                onClick={exportDoc}
+                className="w-full text-left text-xs text-slate-600 hover:text-slate-800 hover:bg-slate-50 p-2 rounded flex items-center gap-2 font-semibold"
+              >
+                <FileText className="w-4 h-4 text-blue-650" /> Export Word (.doc)
               </button>
               <button 
                 onClick={exportPdf}
