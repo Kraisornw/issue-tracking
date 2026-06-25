@@ -27,6 +27,9 @@ import {
 import { 
   UploadModal 
 } from '@/components/UploadModal';
+import { 
+  CreateIssueModal 
+} from '@/components/CreateIssueModal';
 import { Issue, UploadHistory, DashboardSummary, AnalyticsData } from '@/types';
 import { 
   Download, 
@@ -35,6 +38,7 @@ import {
   FileDown, 
   RefreshCw, 
   Upload as UploadIcon, 
+  Plus,
   Filter, 
   X, 
   LayoutDashboard, 
@@ -121,6 +125,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetch all data from API
@@ -362,6 +367,15 @@ export default function HomePage() {
             disabled={loading}
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+
+          {/* Manual Create Issue button */}
+          <Button 
+            onClick={() => setCreateModalOpen(true)}
+            variant="outline"
+            className="border-slate-200 bg-white text-black hover:bg-slate-50 font-bold text-xs shadow-sm px-4 py-2 h-9 rounded-lg flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4 text-black" /> เพิ่ม Issue
           </Button>
 
           {/* Excel Upload button */}
@@ -613,6 +627,13 @@ export default function HomePage() {
           </div>
         </main>
       </div>
+
+      {/* Create Issue Modal */}
+      <CreateIssueModal 
+        open={createModalOpen} 
+        onOpenChange={setCreateModalOpen} 
+        onSuccess={fetchData} 
+      />
 
       {/* Excel Upload Modal */}
       <UploadModal 
