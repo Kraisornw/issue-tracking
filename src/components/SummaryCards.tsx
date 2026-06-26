@@ -65,7 +65,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       icon: AlertTriangle,
       color: summary.criticalIssues > 0 ? 'text-red-600 border-red-200 bg-red-50/60' : 'text-slate-500 border-slate-200 bg-slate-50/60',
       glow: summary.criticalIssues > 0 ? 'group-hover:border-red-400/50 group-hover:shadow-red-100/80' : 'group-hover:border-slate-300',
-      desc: 'High priority open issues'
+      desc: 'High priority pending issues'
     },
     {
       title: 'Resolution Rate',
@@ -73,7 +73,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       icon: Percent,
       color: 'text-teal-600 border-teal-200 bg-teal-50/60',
       glow: 'group-hover:border-teal-400/50 group-hover:shadow-teal-100/80',
-      desc: 'Closed vs total issues'
+      desc: 'Completed vs total issues'
     },
     {
       title: 'Avg Resolution Time',
@@ -81,7 +81,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       icon: Clock,
       color: 'text-purple-600 border-purple-200 bg-purple-50/60',
       glow: 'group-hover:border-purple-400/50 group-hover:shadow-purple-100/80',
-      desc: 'Average duration to close'
+      desc: 'Average duration to complete'
     },
     {
       title: 'SLA Compliance',

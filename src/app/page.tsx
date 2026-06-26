@@ -651,7 +651,7 @@ export default function HomePage() {
 
               {/* Start Date */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider">Date Opened From</label>
+                <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider">Date From</label>
                 <input 
                   type="date"
                   value={filters.startDate}
@@ -662,7 +662,7 @@ export default function HomePage() {
 
               {/* End Date */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider">Date Opened To</label>
+                <label className="text-[10px] font-bold text-slate-455 uppercase tracking-wider">Date To</label>
                 <input 
                   type="date"
                   value={filters.endDate}

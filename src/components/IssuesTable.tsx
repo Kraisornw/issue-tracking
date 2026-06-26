@@ -328,7 +328,7 @@ export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps
 
               {selectedIssue.closedDate && (
                 <div className="col-span-2">
-                  <p className="text-xs text-slate-500 font-semibold uppercase">Closed Date</p>
+                  <p className="text-xs text-slate-500 font-semibold uppercase">Completed Date</p>
                   <p className="text-slate-700 font-mono mt-0.5">{selectedIssue.closedDate}</p>
                 </div>
               )}

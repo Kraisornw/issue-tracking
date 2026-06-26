@@ -146,8 +146,8 @@ export function AggregateTables({ repeated, overdue, topics }: AggregateTablesPr
               <TableHeader className="bg-slate-50/80 sticky top-0 z-10">
                 <TableRow className="border-slate-200/60 hover:bg-transparent">
                   <TableHead className="text-slate-500 font-bold h-9 text-xs">Topic / Agenda</TableHead>
-                  <TableHead className="text-slate-500 font-bold h-9 text-xs text-center">Open</TableHead>
-                  <TableHead className="text-slate-500 font-bold h-9 text-xs text-center">Closed</TableHead>
+                  <TableHead className="text-slate-500 font-bold h-9 text-xs text-center">Pending</TableHead>
+                  <TableHead className="text-slate-500 font-bold h-9 text-xs text-center">Completed</TableHead>
                   <TableHead className="text-slate-500 font-bold h-9 text-xs text-right">Resolution %</TableHead>
                 </TableRow>
               </TableHeader>

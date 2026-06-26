@@ -194,8 +194,8 @@ export function MonthlyTrends({ data }: MonthlyTrendsProps) {
                 iconSize={8}
                 wrapperStyle={{ fontSize: '11px', color: '#475569' }}
               />
-              <Line type="monotone" dataKey="opened" stroke={COLORS.indigo} strokeWidth={2} dot={{ r: 4 }} name="Opened" activeDot={{ r: 6 }} />
-              <Line type="monotone" dataKey="closed" stroke={COLORS.emerald} strokeWidth={2} dot={{ r: 4 }} name="Closed" activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="opened" stroke={COLORS.indigo} strokeWidth={2} dot={{ r: 4 }} name="all Issues" activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="closed" stroke={COLORS.emerald} strokeWidth={2} dot={{ r: 4 }} name="Completed" activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         )}
@@ -213,7 +213,7 @@ export function ResolutionTimeTrend({ data }: ResolutionTimeTrendProps) {
     <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-bold text-slate-800">Resolution Time Trend</CardTitle>
-        <CardDescription className="text-xs text-slate-455">Average days to close issues by month</CardDescription>
+        <CardDescription className="text-xs text-slate-455">Average days to complete issues by month</CardDescription>
       </CardHeader>
       <CardContent className="h-64 pt-4">
         {data.length === 0 ? (
@@ -279,11 +279,11 @@ export function AgingAnalysisChart({ data }: AgingAnalysisProps) {
     <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-bold text-slate-800">Aging Analysis</CardTitle>
-        <CardDescription className="text-xs text-slate-455">Aging of open issues in brackets</CardDescription>
+        <CardDescription className="text-xs text-slate-455">Aging of pending issues in brackets</CardDescription>
       </CardHeader>
       <CardContent className="h-60 pt-4">
         {data.every(d => d.count === 0) ? (
-          <div className="text-center text-xs text-slate-400 py-12">No open issues aging</div>
+          <div className="text-center text-xs text-slate-400 py-12">No pending issues aging</div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ left: -10, right: 10, top: 10, bottom: 5 }}>
@@ -291,7 +291,7 @@ export function AgingAnalysisChart({ data }: AgingAnalysisProps) {
               <XAxis dataKey="range" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
               <YAxis stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip content={<CustomTooltip valueSuffix=" Issues" />} />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Open Issues" barSize={24}>
+              <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Pending Issues" barSize={24}>
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                 ))}
