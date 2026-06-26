@@ -226,16 +226,11 @@ export async function POST(req: NextRequest) {
       // Auto closed date is set to due date if status is Completed, else null
       const closedDateFormatted = finalStatus === 'Completed' ? (dueDateFormatted || openDateFormatted) : null;
 
-      // 6. Generate stable hash based on issue identity fields (Date, Project, Category, Location, Description)
-      const uniqueKey = `${openDateFormatted}|${finalProject}|${category}|${location}|${finalDescription}`;
-      let hash = 0;
-      for (let i = 0; i < uniqueKey.length; i++) {
-        const chr = uniqueKey.charCodeAt(i);
-        hash = ((hash << 5) - hash) + chr;
-        hash |= 0;
-      }
-      const hexHash = (hash >>> 0).toString(16).toUpperCase();
-      const baseIssueId = `ISS-${hexHash}`;
+      // 6. Generate unique stable Issue ID, appending counter if duplicates found in sheet
+      const cleanProject = finalProject.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10).toUpperCase();
+      const cleanDescription = finalDescription.replace(/[^a-zA-Z0-9]/g, '').substring(0, 15).toUpperCase();
+      const prefix = workItemType === 'Requirement' ? 'REQ' : 'ISS';
+      const baseIssueId = `${prefix}-${openDateFormatted}-${cleanProject}-${cleanDescription}`;
       
       let issueId = baseIssueId;
       let counter = 1;
@@ -297,11 +292,16 @@ export async function POST(req: NextRequest) {
         status: 'processing'
       });
 
-      // 2. Tag issues with the uploadId
-      const finalIssues = parsedIssues.map(issue => ({
-        ...issue,
-        uploadId
-      }));
+      // 2. Prefix issueId with uploadId to ensure uniqueness across different file uploads, and tag with uploadId
+      const finalIssues = parsedIssues.map(issue => {
+        const prefix = issue.workItemType === 'Requirement' ? 'REQ' : 'ISS';
+        const newIssueId = issue.issueId.replace(new RegExp(`^${prefix}-`), `${prefix}-${uploadId}-`);
+        return {
+          ...issue,
+          issueId: newIssueId,
+          uploadId
+        };
+      });
 
       // 3. Upsert issues and link them to the uploadId
       const { newRecords, updatedRecords } = await dbService.upsertIssues(finalIssues, uploadId);

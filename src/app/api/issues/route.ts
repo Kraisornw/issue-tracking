@@ -56,10 +56,10 @@ export async function POST(req: NextRequest) {
     const formattedDue = dueDate || formattedOpen;
     
     // Generate stable unique issueId
-    const finalLocation = location || 'Unassigned';
-    const uniqueKey = `${formattedOpen}|${project}|${category}|${finalLocation}|${description}`;
+    const cleanProject = (project.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10) || 'GEN').toUpperCase();
+    const cleanDescription = (description.replace(/[^a-zA-Z0-9]/g, '').substring(0, 15) || 'DESC').toUpperCase();
     const prefix = workItemType === 'Requirement' ? 'REQ' : 'ISS';
-    const issueId = `${prefix}-${hashCode(uniqueKey)}`;
+    const issueId = `${prefix}-${formattedOpen}-${cleanProject}-${cleanDescription}`;
     
     const finalStatus = status || 'In Progress';
     const closedDate = finalStatus === 'Completed' ? formattedDue : null;
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       dueDate: formattedDue,
       closedDate,
       responsible: responsible || 'Unassigned',
-      location: finalLocation,
+      location: location || 'Unassigned',
       description,
       workItemType: workItemType || 'Issue',
       uploadId: null // manual issues don't have an uploadId
@@ -87,6 +87,79 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, issue });
   } catch (error: any) {
     console.error('Error creating issue:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { 
+      issueId,
+      project, 
+      category, 
+      description, 
+      openDate, 
+      dueDate, 
+      priority, 
+      severity, 
+      status, 
+      location, 
+      responsible, 
+      discipline,
+      workItemType,
+      closedDate,
+      uploadId,
+      createdAt
+    } = body;
+    
+    if (!issueId || !project || !category || !description) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+    
+    const finalStatus = status || 'In Progress';
+    let finalClosedDate = closedDate;
+    if (finalStatus === 'Completed') {
+      finalClosedDate = closedDate || new Date().toISOString().substring(0, 10);
+    } else {
+      finalClosedDate = null;
+    }
+    
+    let finalIssueId = issueId;
+    const currentPrefix = issueId.split('-')[0].toUpperCase();
+    const targetPrefix = workItemType === 'Requirement' ? 'REQ' : 'ISS';
+    
+    if (currentPrefix !== targetPrefix) {
+      finalIssueId = `${targetPrefix}-${issueId.substring(issueId.indexOf('-') + 1)}`;
+      // Delete the old issue from database to avoid duplicate records
+      await dbService.deleteIssue(issueId);
+    }
+    
+    const updatedIssue: Issue = {
+      issueId: finalIssueId,
+      project,
+      category,
+      discipline: discipline || 'General',
+      priority: priority || 'Medium',
+      severity: severity || 'Major',
+      status: finalStatus,
+      openDate: openDate || new Date().toISOString().substring(0, 10),
+      dueDate: dueDate || openDate || new Date().toISOString().substring(0, 10),
+      closedDate: finalClosedDate,
+      responsible: responsible || 'Unassigned',
+      location: location || 'Unassigned',
+      description,
+      workItemType: workItemType || 'Issue',
+      uploadId: uploadId || null,
+      createdAt: createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    await dbService.upsertIssues([updatedIssue]);
+    
+    return NextResponse.json({ success: true, issue: updatedIssue });
+  } catch (error: any) {
+    console.error('Error updating issue:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

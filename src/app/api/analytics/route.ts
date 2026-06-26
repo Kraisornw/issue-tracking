@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
     const search = searchParams.get('search');
+    const description = searchParams.get('description');
+    const workItemType = searchParams.get('workItemType');
 
     // Fetch all issues
     let issues = await dbService.getIssues();
@@ -32,6 +34,12 @@ export async function GET(req: NextRequest) {
     }
     if (category) {
       issues = issues.filter(i => i.category.toLowerCase() === category.toLowerCase());
+    }
+    if (description) {
+      issues = issues.filter(i => i.description.toLowerCase() === description.toLowerCase());
+    }
+    if (workItemType) {
+      issues = issues.filter(i => i.workItemType?.toLowerCase() === workItemType.toLowerCase());
     }
     if (discipline) {
       issues = issues.filter(i => i.discipline.toLowerCase() === discipline.toLowerCase());

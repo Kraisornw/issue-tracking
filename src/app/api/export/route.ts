@@ -8,6 +8,8 @@ export async function GET(req: NextRequest) {
     // Extract filters
     const project = searchParams.get('project');
     const category = searchParams.get('category');
+    const description = searchParams.get('description');
+    const workItemType = searchParams.get('workItemType');
     const discipline = searchParams.get('discipline');
     const status = searchParams.get('status');
     const priority = searchParams.get('priority');
@@ -22,6 +24,8 @@ export async function GET(req: NextRequest) {
     // Apply filters
     if (project) issues = issues.filter(i => i.project.toLowerCase() === project.toLowerCase());
     if (category) issues = issues.filter(i => i.category.toLowerCase() === category.toLowerCase());
+    if (description) issues = issues.filter(i => i.description.toLowerCase() === description.toLowerCase());
+    if (workItemType) issues = issues.filter(i => i.workItemType?.toLowerCase() === workItemType.toLowerCase());
     if (discipline) issues = issues.filter(i => i.discipline.toLowerCase() === discipline.toLowerCase());
     if (status) issues = issues.filter(i => i.status.toLowerCase() === status.toLowerCase());
     if (priority) issues = issues.filter(i => i.priority.toLowerCase() === priority.toLowerCase());

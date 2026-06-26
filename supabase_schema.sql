@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.issues (
     "responsible" TEXT,
     "location" TEXT,
     "description" TEXT,
+    "workItemType" TEXT DEFAULT 'Issue',
     "createdAt" TIMESTAMPTZ DEFAULT NOW(),
     "updatedAt" TIMESTAMPTZ DEFAULT NOW()
 );

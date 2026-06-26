@@ -11,8 +11,6 @@ import {
   BarChartWidget, 
   MonthlyTrends, 
   ResolutionTimeTrend, 
-  ParetoAnalysis, 
-  AgingAnalysisChart,
   RecentIssuesByTopic 
 } from '@/components/AnalyticsCharts';
 import { 
@@ -114,9 +112,10 @@ export default function HomePage() {
   // Filter States
   const [filters, setFilters] = useState({
     project: '',
-    category: '',
+    description: '',
     status: '',
     priority: '',
+    workItemType: '',
     startDate: '',
     endDate: ''
   });
@@ -137,9 +136,10 @@ export default function HomePage() {
       // Build filter query parameters for analytics
       const queryParams = new URLSearchParams();
       if (filters.project) queryParams.set('project', filters.project);
-      if (filters.category) queryParams.set('category', filters.category);
+      if (filters.description) queryParams.set('description', filters.description);
       if (filters.status) queryParams.set('status', filters.status);
       if (filters.priority) queryParams.set('priority', filters.priority);
+      if (filters.workItemType) queryParams.set('workItemType', filters.workItemType);
       if (filters.startDate) queryParams.set('startDate', filters.startDate);
       if (filters.endDate) queryParams.set('endDate', filters.endDate);
       if (searchQuery) queryParams.set('search', searchQuery);
@@ -185,9 +185,10 @@ export default function HomePage() {
   const resetFilters = () => {
     setFilters({
       project: '',
-      category: '',
+      description: '',
       status: '',
       priority: '',
+      workItemType: '',
       startDate: '',
       endDate: ''
     });
@@ -259,9 +260,10 @@ export default function HomePage() {
   const exportCsv = () => {
     const queryParams = new URLSearchParams();
     if (filters.project) queryParams.set('project', filters.project);
-    if (filters.category) queryParams.set('category', filters.category);
+    if (filters.description) queryParams.set('description', filters.description);
     if (filters.status) queryParams.set('status', filters.status);
     if (filters.priority) queryParams.set('priority', filters.priority);
+    if (filters.workItemType) queryParams.set('workItemType', filters.workItemType);
     if (filters.startDate) queryParams.set('startDate', filters.startDate);
     if (filters.endDate) queryParams.set('endDate', filters.endDate);
     
@@ -273,9 +275,10 @@ export default function HomePage() {
     // Apply current filters client-side to make sure we export what's on screen
     let filtered = [...issues];
     if (filters.project) filtered = filtered.filter(i => i.project === filters.project);
-    if (filters.category) filtered = filtered.filter(i => i.category === filters.category);
+    if (filters.description) filtered = filtered.filter(i => i.description === filters.description);
     if (filters.status) filtered = filtered.filter(i => i.status === filters.status);
     if (filters.priority) filtered = filtered.filter(i => i.priority === filters.priority);
+    if (filters.workItemType) filtered = filtered.filter(i => i.workItemType === filters.workItemType);
     if (filters.startDate) filtered = filtered.filter(i => i.openDate >= filters.startDate);
     if (filters.endDate) filtered = filtered.filter(i => i.openDate <= filters.endDate);
     if (searchQuery) {
@@ -322,7 +325,8 @@ export default function HomePage() {
   const exportDoc = () => {
     let filtered = [...issues];
     if (filters.project) filtered = filtered.filter(i => i.project === filters.project);
-    if (filters.category) filtered = filtered.filter(i => i.category === filters.category);
+    if (filters.description) filtered = filtered.filter(i => i.description === filters.description);
+    if (filters.workItemType) filtered = filtered.filter(i => i.workItemType === filters.workItemType);
     if (filters.status) filtered = filtered.filter(i => i.status === filters.status);
     if (filters.priority) filtered = filtered.filter(i => i.priority === filters.priority);
     if (filters.startDate) filtered = filtered.filter(i => i.openDate >= filters.startDate);
@@ -492,7 +496,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800 font-sans antialiased">
+    <div className="flex flex-col h-screen overflow-hidden bg-slate-50 text-slate-800 font-sans antialiased">
       
       {/* Top Header */}
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
@@ -634,8 +638,9 @@ export default function HomePage() {
 
               {/* Selector wrapper */}
               {[
+                { label: 'Work Item', stateKey: 'workItemType', options: ['Issue', 'Requirement'] },
                 { label: 'Topic / Agenda', stateKey: 'project', options: filterOptions.projects },
-                { label: 'Discussion Category', stateKey: 'category', options: filterOptions.categories },
+                { label: 'Action Item', stateKey: 'description', options: filterOptions.descriptions },
                 { label: 'Status', stateKey: 'status', options: filterOptions.statuses },
                 { label: 'Priority', stateKey: 'priority', options: filterOptions.priorities },
               ].map((select) => (
@@ -649,11 +654,13 @@ export default function HomePage() {
                     <option value="">
                       {select.label === 'Status' 
                         ? 'All Statuses' 
-                        : select.label === 'Discussion Category' 
-                          ? 'All Discussion Categories' 
+                        : select.label === 'Action Item' 
+                          ? 'All Action Items' 
                           : select.label === 'Topic / Agenda' 
                             ? 'All Topics / Agendas' 
-                            : `All ${select.label}s`}
+                            : select.label === 'Work Item'
+                              ? 'All Work Items'
+                              : `All ${select.label}s`}
                     </option>
                     {select.options.map(opt => (
                       <option key={opt} value={opt}>{opt}</option>
@@ -762,10 +769,6 @@ export default function HomePage() {
                   <RecentIssuesByTopic data={analytics.recentIssuesByTopic || { last7Days: [], last14Days: [], last30Days: [] }} />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <ParetoAnalysis data={analytics.paretoAnalysis} />
-                  <AgingAnalysisChart data={analytics.agingAnalysis} />
-                </div>
 
                 {/* Analysis aggregates (Top Repeated, Overdue, workloads) */}
                 <AggregateTables 
@@ -780,7 +783,7 @@ export default function HomePage() {
             {activeTab === 'issues' && (
               <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
                 <CardContent className="p-6">
-                  <IssuesTable issues={issues} filters={filters} onDeleteIssue={handleDeleteIssue} />
+                  <IssuesTable issues={issues} filters={filters} onDeleteIssue={handleDeleteIssue} onEditSuccess={fetchData} />
                 </CardContent>
               </Card>
             )}

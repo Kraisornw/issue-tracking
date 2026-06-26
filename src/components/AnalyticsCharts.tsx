@@ -68,41 +68,46 @@ export function StatusDistribution({ data }: StatusDistributionProps) {
     <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-bold text-slate-800">Work Item Status Distribution</CardTitle>
-        <CardDescription className="text-xs text-slate-450">Current status splits</CardDescription>
+        <CardDescription className="text-xs text-slate-455">Current status splits</CardDescription>
       </CardHeader>
       <CardContent className="h-60 flex flex-col justify-center">
         {total === 0 ? (
           <div className="text-center text-xs text-slate-400 py-12">No data available</div>
         ) : (
-          <div className="w-full h-full relative flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={3}
-                  dataKey="value"
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={statusColors[entry.name] || COLORS.indigo} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend 
-                  verticalAlign="bottom" 
-                  height={36} 
-                  iconType="circle"
-                  iconSize={8}
-                  wrapperStyle={{ fontSize: '11px', color: '#475569' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute text-center flex flex-col justify-center">
-              <span className="text-3xl font-extrabold text-slate-800 tracking-tight">{total}</span>
-              <span className="text-[10px] uppercase font-bold text-slate-455 tracking-wider">Work Items</span>
+          <div className="w-full h-full flex flex-col items-center justify-center">
+            <div className="w-full h-44 relative flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={statusColors[entry.name] || COLORS.indigo} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute text-center flex flex-col justify-center">
+                <span className="text-3xl font-extrabold text-slate-800 tracking-tight">{total}</span>
+                <span className="text-[10px] uppercase font-bold text-slate-455 tracking-wider">Work Items</span>
+              </div>
+            </div>
+            
+            {/* Custom Legend */}
+            <div className="flex items-center justify-center gap-4 mt-3 text-[11px] text-slate-500 font-semibold">
+              {data.map((entry, index) => (
+                <div key={index} className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: statusColors[entry.name] || COLORS.indigo }}></span>
+                  <span>{entry.name}</span>
+                </div>
+              ))}
             </div>
           </div>
         )}

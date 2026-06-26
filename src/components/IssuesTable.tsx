@@ -18,7 +18,8 @@ import {
   ArrowUpDown, 
   Search,
   Eye,
-  Trash2
+  Trash2,
+  Settings
 } from 'lucide-react';
 import { Issue } from '@/types';
 import { 
@@ -27,20 +28,31 @@ import {
   DialogHeader, 
   DialogTitle 
 } from '@/components/ui/dialog';
+import { EditIssueModal } from './EditIssueModal';
 
 interface IssuesTableProps {
   issues: Issue[];
   filters: any;
   onDeleteIssue?: (issueId: string) => void;
+  onEditSuccess?: () => void;
 }
 
-export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps) {
+export function IssuesTable({ issues, filters, onDeleteIssue, onEditSuccess }: IssuesTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof Issue>('openDate');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+  const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
+
+  const existingProjects = useMemo(() => {
+    return Array.from(new Set(issues.map(i => i.project).filter(Boolean)));
+  }, [issues]);
+
+  const existingDescriptions = useMemo(() => {
+    return Array.from(new Set(issues.map(i => i.description).filter(Boolean)));
+  }, [issues]);
 
   // Status Badge Colors
   const getStatusBadge = (status: string) => {
@@ -80,7 +92,8 @@ export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps
 
     // Apply global sidebar filters
     if (filters.project) result = result.filter(i => i.project === filters.project);
-    if (filters.category) result = result.filter(i => i.category === filters.category);
+    if (filters.description) result = result.filter(i => i.description === filters.description);
+    if (filters.workItemType) result = result.filter(i => i.workItemType === filters.workItemType);
     if (filters.discipline) result = result.filter(i => i.discipline === filters.discipline);
     if (filters.status) result = result.filter(i => i.status === filters.status);
     if (filters.priority) result = result.filter(i => i.priority === filters.priority);
@@ -244,6 +257,15 @@ export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-7 w-7 text-amber-500 hover:text-amber-600 hover:bg-amber-50" 
+                      onClick={() => setEditingIssue(issue)}
+                      title="ตั้งค่า/แก้ไข Work Item"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </Button>
                     {onDeleteIssue && (
                       <Button 
                         size="icon" 
@@ -331,7 +353,7 @@ export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps
               </div>
               
               <div>
-                <p className="text-xs text-slate-500 font-semibold uppercase">Discussion Category</p>
+                <p className="text-xs text-slate-500 font-semibold uppercase">Discussion</p>
                 <p className="text-slate-800 font-medium mt-0.5">{selectedIssue.category}</p>
               </div>
               <div>
@@ -369,6 +391,16 @@ export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit View Dialog */}
+      <EditIssueModal 
+        open={!!editingIssue}
+        onOpenChange={(val) => !val && setEditingIssue(null)}
+        issue={editingIssue}
+        onSuccess={() => onEditSuccess?.()}
+        existingProjects={existingProjects}
+        existingDescriptions={existingDescriptions}
+      />
     </div>
   );
 }
