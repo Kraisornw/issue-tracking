@@ -40,6 +40,7 @@ export function CreateIssueModal({
   const [priority, setPriority] = useState('Medium');
   const [status, setStatus] = useState('In Progress');
   const [location, setLocation] = useState('');
+  const [workItemType, setWorkItemType] = useState('Issue');
 
   const resetForm = () => {
     setOpenDate(new Date().toISOString().substring(0, 10));
@@ -50,6 +51,7 @@ export function CreateIssueModal({
     setPriority('Medium');
     setStatus('In Progress');
     setLocation('');
+    setWorkItemType('Issue');
     setError('');
     setSuccess(false);
   };
@@ -89,6 +91,7 @@ export function CreateIssueModal({
           severity: 'Major',
           responsible: 'Unassigned',
           discipline: 'General',
+          workItemType,
         }),
       });
 
@@ -116,17 +119,17 @@ export function CreateIssueModal({
       <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto bg-white border border-slate-200 text-slate-800 shadow-2xl rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-2 text-indigo-600 font-sans">
-            <PlusCircle className="w-5 h-5 text-indigo-600" /> สร้างข้อมูล Issue ใหม่
+            <PlusCircle className="w-5 h-5 text-indigo-600" /> สร้างข้อมูล Work Item ใหม่
           </DialogTitle>
           <DialogDescription className="text-slate-500 font-sans">
-            กรอกข้อมูลรายละเอียดของ Issue ที่ต้องการนำเข้าฐานข้อมูลโดยตรง
+            กรอกข้อมูลรายละเอียดของ Work Item ที่ต้องการนำเข้าฐานข้อมูลโดยตรง
           </DialogDescription>
         </DialogHeader>
 
         {success ? (
           <div className="flex flex-col items-center justify-center py-8 gap-3">
             <CheckCircle2 className="w-12 h-12 text-emerald-500 animate-bounce" />
-            <p className="font-semibold text-slate-800 text-lg">เพิ่มข้อมูล Issue สำเร็จ!</p>
+            <p className="font-semibold text-slate-800 text-lg">เพิ่มข้อมูล Work Item สำเร็จ!</p>
             <p className="text-sm text-slate-500">ระบบจะทำการปิดหน้าต่างนี้และรีเฟรชข้อมูลโดยอัตโนมัติ...</p>
           </div>
         ) : (
@@ -161,6 +164,20 @@ export function CreateIssueModal({
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800 font-mono"
                   required
                 />
+              </div>
+
+              {/* Work Item Type */}
+              <div className="col-span-2">
+                <label className="block font-semibold text-slate-600 mb-1">Work Item (ประเภท) *</label>
+                <select 
+                  value={workItemType}
+                  onChange={(e) => setWorkItemType(e.target.value)}
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800 font-semibold cursor-pointer"
+                  required
+                >
+                  <option value="Issue">Issue</option>
+                  <option value="Requirement">Requirement</option>
+                </select>
               </div>
 
               {/* Topic / Agenda */}
@@ -268,10 +285,10 @@ export function CreateIssueModal({
               <Button 
                 type="submit"
                 disabled={loading}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-md px-6 flex items-center gap-1.5"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-md px-6 flex items-center gap-1.5 animate-in"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                สร้าง Issue
+                สร้าง Work Item
               </Button>
             </div>
           </form>

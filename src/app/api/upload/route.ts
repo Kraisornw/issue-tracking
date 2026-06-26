@@ -144,6 +144,7 @@ export async function POST(req: NextRequest) {
     const idxPriority = colIdx(['Prioriry', 'Priority', 'priority', 'prioriry']);
     const idxStatus = colIdx(['Status', 'status']);
     const idxLocation = colIdx(['comment', 'Comments', 'Comment', 'comments']);
+    const idxWorkItem = colIdx(['Work Item', 'Work Item Type', 'WorkItem', 'Type', 'type']);
 
     const missingColumns: string[] = [];
     if (idxOpenDate === -1) missingColumns.push('Date');
@@ -182,6 +183,8 @@ export async function POST(req: NextRequest) {
       const rawOpenDate = row[idxOpenDate];
       const rawDueDate = row[idxDueDate];
       const location = String(row[idxLocation]).trim();
+      const rawWorkItem = idxWorkItem !== -1 ? String(row[idxWorkItem]).trim() : '';
+      const workItemType = rawWorkItem.toLowerCase().includes('requirement') ? 'Requirement' : 'Issue';
 
       // 1. Format Open Date (fallback to today if missing/invalid)
       let openDateFormatted = formatDate(rawOpenDate);
@@ -255,7 +258,8 @@ export async function POST(req: NextRequest) {
         closedDate: closedDateFormatted,
         responsible: 'Unassigned',
         location: location || 'Unassigned',
-        description: finalDescription
+        description: finalDescription,
+        workItemType,
       });
     }
 

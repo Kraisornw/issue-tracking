@@ -268,10 +268,11 @@ class DatabaseService {
       rawIssues = getLocalData().issues;
     }
 
-    // Normalize legacy status values dynamically
+    // Normalize legacy status values dynamically and default workItemType
     return rawIssues.map(i => ({
       ...i,
-      status: i.status === 'Closed' ? 'Completed' : i.status === 'Open' ? 'Pending' : i.status
+      status: i.status === 'Closed' ? 'Completed' : i.status === 'Open' ? 'Pending' : i.status,
+      workItemType: i.workItemType || 'Issue'
     }));
   }
 

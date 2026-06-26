@@ -67,7 +67,7 @@ export function StatusDistribution({ data }: StatusDistributionProps) {
   return (
     <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-bold text-slate-800">Issue Status Distribution</CardTitle>
+        <CardTitle className="text-sm font-bold text-slate-800">Work Item Status Distribution</CardTitle>
         <CardDescription className="text-xs text-slate-450">Current status splits</CardDescription>
       </CardHeader>
       <CardContent className="h-60 flex flex-col justify-center">
@@ -102,7 +102,7 @@ export function StatusDistribution({ data }: StatusDistributionProps) {
             </ResponsiveContainer>
             <div className="absolute text-center flex flex-col justify-center">
               <span className="text-3xl font-extrabold text-slate-800 tracking-tight">{total}</span>
-              <span className="text-[10px] uppercase font-bold text-slate-455 tracking-wider">Issues</span>
+              <span className="text-[10px] uppercase font-bold text-slate-455 tracking-wider">Work Items</span>
             </div>
           </div>
         )}
@@ -148,7 +148,7 @@ export function BarChartWidget({
                 <XAxis type="number" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
                 <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={10} width={120} tickLine={false} axisLine={false} interval={0} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey={dataKey} fill={color} radius={[0, 4, 4, 0]} name="Issues Count" barSize={12} />
+                <Bar dataKey={dataKey} fill={color} radius={[0, 4, 4, 0]} name="Work Items Count" barSize={12} />
               </BarChart>
             ) : (
               <BarChart data={displayData} layout="horizontal" margin={{ left: -10, right: 10, top: 0, bottom: 0 }}>
@@ -156,7 +156,7 @@ export function BarChartWidget({
                 <XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
                 <YAxis type="number" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey={dataKey} fill={color} radius={[4, 4, 0, 0]} name="Issues Count" barSize={14} />
+                <Bar dataKey={dataKey} fill={color} radius={[4, 4, 0, 0]} name="Work Items Count" barSize={14} />
               </BarChart>
             )}
           </ResponsiveContainer>
@@ -174,8 +174,8 @@ export function MonthlyTrends({ data }: MonthlyTrendsProps) {
   return (
     <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-bold text-slate-800">Issues Trend</CardTitle>
-        <CardDescription className="text-xs text-slate-455">Monthly created vs resolved issues</CardDescription>
+        <CardTitle className="text-sm font-bold text-slate-800">Work Items Trend</CardTitle>
+        <CardDescription className="text-xs text-slate-455">Monthly created vs resolved work items</CardDescription>
       </CardHeader>
       <CardContent className="h-64 pt-4">
         {data.length === 0 ? (
@@ -194,7 +194,7 @@ export function MonthlyTrends({ data }: MonthlyTrendsProps) {
                 iconSize={8}
                 wrapperStyle={{ fontSize: '11px', color: '#475569' }}
               />
-              <Line type="monotone" dataKey="opened" stroke={COLORS.indigo} strokeWidth={2} dot={{ r: 4 }} name="all Issues" activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="opened" stroke={COLORS.indigo} strokeWidth={2} dot={{ r: 4 }} name="all Work Items" activeDot={{ r: 6 }} />
               <Line type="monotone" dataKey="closed" stroke={COLORS.emerald} strokeWidth={2} dot={{ r: 4 }} name="Completed" activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
@@ -213,7 +213,7 @@ export function ResolutionTimeTrend({ data }: ResolutionTimeTrendProps) {
     <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-bold text-slate-800">Resolution Time Trend</CardTitle>
-        <CardDescription className="text-xs text-slate-455">Average days to complete issues by month</CardDescription>
+        <CardDescription className="text-xs text-slate-455">Average days to complete work items by month</CardDescription>
       </CardHeader>
       <CardContent className="h-64 pt-4">
         {data.length === 0 ? (
@@ -243,7 +243,7 @@ export function ParetoAnalysis({ data }: ParetoAnalysisProps) {
     <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-bold text-slate-800">Pareto Analysis (80/20 Rule)</CardTitle>
-        <CardDescription className="text-xs text-slate-455">Identify categories causing 80% of issues</CardDescription>
+        <CardDescription className="text-xs text-slate-455">Identify categories causing 80% of work items</CardDescription>
       </CardHeader>
       <CardContent className="h-64 pt-4">
         {data.length === 0 ? (
@@ -253,11 +253,11 @@ export function ParetoAnalysis({ data }: ParetoAnalysisProps) {
             <ComposedChart data={data} margin={{ left: -10, right: -10, top: 10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
               <XAxis dataKey="category" stroke="#64748b" fontSize={9} tickLine={false} axisLine={false} />
-              <YAxis yAxisId="left" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} label={{ value: 'Issues Count', angle: -90, position: 'insideLeft', style: { fill: '#64748b', fontSize: '9px' } }} />
+              <YAxis yAxisId="left" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} label={{ value: 'Work Items Count', angle: -90, position: 'insideLeft', style: { fill: '#64748b', fontSize: '9px' } }} />
               <YAxis yAxisId="right" orientation="right" domain={[0, 100]} stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} label={{ value: 'Cumulative %', angle: 90, position: 'insideRight', style: { fill: '#64748b', fontSize: '9px' } }} />
               <Tooltip content={<CustomTooltip />} />
               <Legend verticalAlign="top" height={36} iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', color: '#475569' }} />
-              <Bar yAxisId="left" dataKey="count" fill={COLORS.indigo} radius={[4, 4, 0, 0]} name="Issues Count" barSize={20} />
+              <Bar yAxisId="left" dataKey="count" fill={COLORS.indigo} radius={[4, 4, 0, 0]} name="Work Items Count" barSize={20} />
               <Line yAxisId="right" type="monotone" dataKey="cumulativePercent" stroke={COLORS.rose} strokeWidth={2} dot={{ r: 4 }} name="Cumulative %" />
             </ComposedChart>
           </ResponsiveContainer>
@@ -279,19 +279,19 @@ export function AgingAnalysisChart({ data }: AgingAnalysisProps) {
     <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-bold text-slate-800">Aging Analysis</CardTitle>
-        <CardDescription className="text-xs text-slate-455">Aging of pending issues in brackets</CardDescription>
+        <CardDescription className="text-xs text-slate-455">Aging of pending work items in brackets</CardDescription>
       </CardHeader>
       <CardContent className="h-60 pt-4">
         {data.every(d => d.count === 0) ? (
-          <div className="text-center text-xs text-slate-400 py-12">No pending issues aging</div>
+          <div className="text-center text-xs text-slate-400 py-12">No pending work items aging</div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ left: -10, right: 10, top: 10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
               <XAxis dataKey="range" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
               <YAxis stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip content={<CustomTooltip valueSuffix=" Issues" />} />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Pending Issues" barSize={24}>
+              <Tooltip content={<CustomTooltip valueSuffix=" Work Items" />} />
+              <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Pending Work Items" barSize={24}>
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                 ))}
@@ -326,8 +326,8 @@ export function RecentIssuesByTopic({ data }: RecentIssuesByTopicProps) {
     <Card className="bg-white border border-slate-200/80 shadow-sm shadow-slate-100/50">
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <div>
-          <CardTitle className="text-sm font-bold text-slate-800">Recent Issues by Topic</CardTitle>
-          <CardDescription className="text-xs text-slate-450">Issues logged in recent time ranges</CardDescription>
+          <CardTitle className="text-sm font-bold text-slate-800">Recent Work Items by Topic</CardTitle>
+          <CardDescription className="text-xs text-slate-450">Work items logged in recent time ranges</CardDescription>
         </div>
         <div className="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200">
           {(['7', '14', '30'] as const).map((r) => (
@@ -347,15 +347,15 @@ export function RecentIssuesByTopic({ data }: RecentIssuesByTopicProps) {
       </CardHeader>
       <CardContent className="h-64 pt-4">
         {chartData.length === 0 ? (
-          <div className="text-center text-xs text-slate-400 py-16">No issues logged in this range</div>
+          <div className="text-center text-xs text-slate-400 py-16">No work items logged in this range</div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 20, top: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={true} vertical={false} />
               <XAxis type="number" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
               <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={10} width={120} tickLine={false} axisLine={false} interval={0} />
-              <Tooltip content={<CustomTooltip valueSuffix=" Issues" />} />
-              <Bar dataKey="count" fill="#4f46e5" radius={[0, 4, 4, 0]} name="Issues Count" barSize={12} />
+              <Tooltip content={<CustomTooltip valueSuffix=" Work Items" />} />
+              <Bar dataKey="count" fill="#4f46e5" radius={[0, 4, 4, 0]} name="Work Items Count" barSize={12} />
             </BarChart>
           </ResponsiveContainer>
         )}

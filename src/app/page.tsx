@@ -289,7 +289,8 @@ export default function HomePage() {
 
     // Format data rows for Excel output
     const excelRows = filtered.map(issue => ({
-      'Issue ID': issue.issueId,
+      'Work Item ID': issue.issueId,
+      'Work Item': issue.workItemType || 'Issue',
       'Date': issue.openDate,
       'Topic / Agenda': issue.project,
       'Discussion': issue.category,
@@ -302,7 +303,7 @@ export default function HomePage() {
 
     const worksheet = XLSX.utils.json_to_sheet(excelRows);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Filtered Issues');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Filtered Work Items');
     
     // Auto-fit column widths
     const maxLens = excelRows.reduce((acc: any, row: any) => {
@@ -314,7 +315,7 @@ export default function HomePage() {
     }, {});
     worksheet['!cols'] = Object.keys(maxLens).map((key: string) => ({ wch: maxLens[key] + 3 }));
 
-    XLSX.writeFile(workbook, `issues_report_${new Date().toISOString().substring(0, 10)}.xlsx`);
+    XLSX.writeFile(workbook, `work_items_report_${new Date().toISOString().substring(0, 10)}.xlsx`);
   };
 
   // 3. Export Word (.doc)
@@ -385,23 +386,24 @@ export default function HomePage() {
         </style>
       </head>
       <body>
-        <h1>Issues Report</h1>
+        <h1>Work Items Report</h1>
         <div class="meta-info">
           <strong>Export Date:</strong> ${new Date().toLocaleDateString('th-TH')} ${new Date().toLocaleTimeString('th-TH')}<br/>
-          <strong>Total Records:</strong> ${filtered.length} issues
+          <strong>Total Records:</strong> ${filtered.length} work items
         </div>
         <table>
           <thead>
             <tr>
-              <th style="width: 15%;">Issue ID</th>
-              <th style="width: 10%;">Date</th>
-              <th style="width: 12%;">Topic / Agenda</th>
-              <th style="width: 12%;">Discussion</th>
-              <th style="width: 25%;">Action Item</th>
-              <th style="width: 10%;">Due Date</th>
+              <th style="width: 12%;">Work Item ID</th>
+              <th style="width: 10%;">Work Item</th>
+              <th style="width: 9%;">Date</th>
+              <th style="width: 11%;">Topic / Agenda</th>
+              <th style="width: 11%;">Discussion</th>
+              <th style="width: 22%;">Action Item</th>
+              <th style="width: 9%;">Due Date</th>
               <th style="width: 8%;">Priority</th>
               <th style="width: 8%;">Status</th>
-              <th style="width: 10%;">Comment</th>
+              <th style="width: 8%;">Comment</th>
             </tr>
           </thead>
           <tbody>
@@ -411,6 +413,7 @@ export default function HomePage() {
       htmlContent += `
         <tr>
           <td style="font-family: 'Courier New'; font-weight: bold; color: #4f46e5;">${issue.issueId}</td>
+          <td>${issue.workItemType || 'Issue'}</td>
           <td>${issue.openDate}</td>
           <td>${issue.project}</td>
           <td>${issue.category}</td>
@@ -437,7 +440,7 @@ export default function HomePage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `issues_report_${new Date().toISOString().substring(0, 10)}.doc`;
+    a.download = `work_items_report_${new Date().toISOString().substring(0, 10)}.doc`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -499,7 +502,7 @@ export default function HomePage() {
           </div>
           <div>
             <h1 className="text-lg font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700">
-              Issue Tracking Analytics
+              Work Item Tracking Analytics
             </h1>
           </div>
         </div>
@@ -523,7 +526,7 @@ export default function HomePage() {
             variant="outline"
             className="border-slate-200 bg-white text-black hover:bg-slate-50 font-bold text-xs shadow-sm px-4 py-2 h-9 rounded-lg flex items-center gap-1.5"
           >
-            <Plus className="w-4 h-4 text-black" /> เพิ่ม Issue
+            <Plus className="w-4 h-4 text-black" /> เพิ่ม Work Item
           </Button>
 
           {/* Excel Upload button */}
@@ -723,7 +726,7 @@ export default function HomePage() {
                   : 'text-slate-500 hover:text-slate-850 hover:bg-slate-100/60 border border-transparent font-semibold'
               }`}
             >
-              <ListTodo className="w-4 h-4" /> Detailed Issues List
+              <ListTodo className="w-4 h-4" /> Detailed Work Items List
             </button>
             <button 
               onClick={() => setActiveTab('history')}
@@ -749,8 +752,8 @@ export default function HomePage() {
                 {/* Dashboard Charts */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   <StatusDistribution data={analytics.statusDistribution} />
-                  <BarChartWidget title="Issues by Priority" desc="Categorized by importance" data={analytics.byPriority || []} color="#f43f5e" />
-                  <BarChartWidget title="Issues by Topic" desc="Workload across developments" data={analytics.byProject} color="#3b82f6" />
+                  <BarChartWidget title="Work Items by Priority" desc="Categorized by importance" data={analytics.byPriority || []} color="#f43f5e" />
+                  <BarChartWidget title="Work Items by Topic" desc="Workload across developments" data={analytics.byProject} color="#3b82f6" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

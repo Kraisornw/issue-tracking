@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
     // Convert issues to CSV content
     const headers = [
-      'Issue ID', 'Date', 'Topic / Agenda', 'Discussion', 
+      'Work Item ID', 'Work Item', 'Date', 'Topic / Agenda', 'Discussion', 
       'Action Item', 'Due Date', 'Priority', 'Status', 'Comment'
     ];
 
@@ -51,6 +51,7 @@ export async function GET(req: NextRequest) {
     for (const issue of issues) {
       const row = [
         escapeCsvCell(issue.issueId),
+        escapeCsvCell(issue.workItemType || 'Issue'),
         escapeCsvCell(issue.openDate),
         escapeCsvCell(issue.project),
         escapeCsvCell(issue.category),

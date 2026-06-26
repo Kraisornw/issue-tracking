@@ -43,7 +43,8 @@ export async function POST(req: NextRequest) {
       status, 
       location, 
       responsible, 
-      discipline 
+      discipline,
+      workItemType
     } = body;
     
     if (!project || !category || !description) {
@@ -57,7 +58,8 @@ export async function POST(req: NextRequest) {
     // Generate stable unique issueId
     const finalLocation = location || 'Unassigned';
     const uniqueKey = `${formattedOpen}|${project}|${category}|${finalLocation}|${description}`;
-    const issueId = `ISS-${hashCode(uniqueKey)}`;
+    const prefix = workItemType === 'Requirement' ? 'REQ' : 'ISS';
+    const issueId = `${prefix}-${hashCode(uniqueKey)}`;
     
     const finalStatus = status || 'In Progress';
     const closedDate = finalStatus === 'Completed' ? formattedDue : null;
@@ -76,6 +78,7 @@ export async function POST(req: NextRequest) {
       responsible: responsible || 'Unassigned',
       location: finalLocation,
       description,
+      workItemType: workItemType || 'Issue',
       uploadId: null // manual issues don't have an uploadId
     };
     

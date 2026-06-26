@@ -20,15 +20,15 @@ interface SummaryCardsProps {
 export function SummaryCards({ summary }: SummaryCardsProps) {
   const cards = [
     {
-      title: 'Total Issues',
+      title: 'Total Work Items',
       value: summary.totalIssues,
       icon: ClipboardList,
       color: 'text-indigo-600 border-indigo-200 bg-indigo-50/60',
       glow: 'group-hover:border-indigo-400/50 group-hover:shadow-indigo-100/80',
-      desc: 'All imported tickets'
+      desc: 'All imported work items'
     },
     {
-      title: 'Pending Issues',
+      title: 'Pending Work Items',
       value: summary.openIssues,
       icon: Clock,
       color: 'text-amber-600 border-amber-200 bg-amber-50/60',
@@ -41,10 +41,10 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       icon: Hourglass,
       color: 'text-blue-600 border-blue-200 bg-blue-50/60',
       glow: 'group-hover:border-blue-400/50 group-hover:shadow-blue-100/80',
-      desc: 'Actively being fixed'
+      desc: 'Actively being resolved'
     },
     {
-      title: 'Completed Issues',
+      title: 'Completed Work Items',
       value: summary.closedIssues,
       icon: CheckCircle2,
       color: 'text-emerald-600 border-emerald-200 bg-emerald-50/60',
@@ -52,7 +52,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       desc: 'Resolved and verified'
     },
     {
-      title: 'Overdue Issues',
+      title: 'Overdue Work Items',
       value: summary.overdueIssues,
       icon: CalendarDays,
       color: summary.overdueIssues > 0 ? 'text-rose-600 border-rose-200 bg-rose-50/60' : 'text-slate-500 border-slate-200 bg-slate-50/60',
@@ -65,7 +65,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       icon: AlertTriangle,
       color: summary.criticalIssues > 0 ? 'text-red-600 border-red-200 bg-red-50/60' : 'text-slate-500 border-slate-200 bg-slate-50/60',
       glow: summary.criticalIssues > 0 ? 'group-hover:border-red-400/50 group-hover:shadow-red-100/80' : 'group-hover:border-slate-300',
-      desc: 'High priority pending issues'
+      desc: 'High priority pending work items'
     },
     {
       title: 'Resolution Rate',
@@ -73,7 +73,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       icon: Percent,
       color: 'text-teal-600 border-teal-200 bg-teal-50/60',
       glow: 'group-hover:border-teal-400/50 group-hover:shadow-teal-100/80',
-      desc: 'Completed vs total issues'
+      desc: 'Completed vs total work items'
     },
     {
       title: 'Avg Resolution Time',

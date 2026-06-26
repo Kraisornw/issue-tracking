@@ -171,9 +171,14 @@ export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps
         <Table>
           <TableHeader className="bg-slate-50">
             <TableRow className="border-slate-200 hover:bg-transparent">
-              <TableHead className="w-[100px] text-slate-600 font-bold">
+              <TableHead className="text-slate-600 font-bold">
                 <Button variant="ghost" className="p-0 hover:bg-transparent hover:text-slate-800 text-xs font-bold" onClick={() => handleSort('issueId')}>
-                  Issue ID <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                  Work Item ID <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                </Button>
+              </TableHead>
+              <TableHead className="text-slate-600 font-bold">
+                <Button variant="ghost" className="p-0 hover:bg-transparent hover:text-slate-800 text-xs font-bold" onClick={() => handleSort('workItemType')}>
+                  Work Item <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                 </Button>
               </TableHead>
               <TableHead className="text-slate-600 font-bold">
@@ -202,14 +207,21 @@ export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps
           <TableBody>
             {paginatedIssues.length === 0 ? (
               <TableRow className="border-slate-200 hover:bg-transparent">
-                <TableCell colSpan={10} className="h-32 text-center text-slate-400 text-sm">
-                  No issues found. Try adjusting filters or upload a new file.
+                <TableCell colSpan={11} className="h-32 text-center text-slate-400 text-sm">
+                  No work items found. Try adjusting filters or upload a new file.
                 </TableCell>
               </TableRow>
             ) : (
               paginatedIssues.map((issue) => (
                 <TableRow key={issue.issueId} className="border-slate-200/60 hover:bg-slate-50/50 text-slate-700">
                   <TableCell className="font-mono font-bold text-indigo-600 py-3">{issue.issueId}</TableCell>
+                  <TableCell>
+                    {issue.workItemType === 'Requirement' ? (
+                      <Badge className="bg-slate-100 text-slate-700 border-slate-200 font-semibold shadow-none">Requirement</Badge>
+                    ) : (
+                      <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 font-semibold shadow-none">Issue</Badge>
+                    )}
+                  </TableCell>
                   <TableCell className="font-mono text-slate-500">{issue.openDate}</TableCell>
                   <TableCell className="font-medium text-slate-800">{issue.project}</TableCell>
                   <TableCell className="text-slate-750">{issue.category}</TableCell>
@@ -238,11 +250,11 @@ export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps
                         variant="ghost" 
                         className="h-7 w-7 text-rose-500 hover:text-rose-700 hover:bg-rose-50" 
                         onClick={() => {
-                          if (confirm(`คุณต้องการลบ Issue รหัส ${issue.issueId} ใช่หรือไม่?`)) {
+                          if (confirm(`คุณต้องการลบ Work Item รหัส ${issue.issueId} ใช่หรือไม่?`)) {
                             onDeleteIssue(issue.issueId);
                           }
                         }}
-                        title="ลบ Issue"
+                        title="ลบ Work Item"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -292,13 +304,23 @@ export function IssuesTable({ issues, filters, onDeleteIssue }: IssuesTableProps
         <DialogContent className="sm:max-w-xl bg-white border border-slate-200 text-slate-800 shadow-2xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold font-mono text-indigo-600 flex items-center justify-between">
-              <span>Issue Details: {selectedIssue?.issueId}</span>
+              <span>Work Item Details: {selectedIssue?.issueId}</span>
               <span className="mr-6">{selectedIssue && getStatusBadge(selectedIssue.status)}</span>
             </DialogTitle>
           </DialogHeader>
 
           {selectedIssue && (
             <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm py-4 border-t border-slate-150 mt-2">
+              <div className="col-span-2">
+                <p className="text-xs text-slate-500 font-semibold uppercase">Work Item (ประเภท)</p>
+                <div className="mt-1">
+                  {selectedIssue.workItemType === 'Requirement' ? (
+                    <Badge className="bg-slate-100 text-slate-700 border-slate-200 font-semibold shadow-none">Requirement</Badge>
+                  ) : (
+                    <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 font-semibold shadow-none">Issue</Badge>
+                  )}
+                </div>
+              </div>
               <div>
                 <p className="text-xs text-slate-500 font-semibold uppercase">Topic / Agenda</p>
                 <p className="text-slate-800 font-medium mt-0.5">{selectedIssue.project}</p>

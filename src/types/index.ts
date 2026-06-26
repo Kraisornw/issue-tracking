@@ -12,6 +12,7 @@ export interface Issue {
   responsible: string;
   description: string;
   location: string;
+  workItemType?: string; // "Issue" | "Requirement"
   createdAt?: string; // ISO string
   updatedAt?: string; // ISO string
   uploadId?: string | number | null;
