@@ -229,18 +229,6 @@ export function CreateIssueModal({
                 </select>
               </div>
 
-              {/* Comments */}
-              <div className="col-span-2">
-                <label className="block font-semibold text-slate-600 mb-1">Comments (ความคิดเห็น)</label>
-                <input 
-                  type="text" 
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="กรอกความคิดเห็นเพิ่มเติม..."
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
-                />
-              </div>
-
               {/* Discussion */}
               <div className="col-span-2">
                 <label className="block font-semibold text-slate-600 mb-1">Discussion (หมวดหมู่) *</label>
@@ -251,6 +239,18 @@ export function CreateIssueModal({
                   placeholder="เช่น Architectural, MEP"
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
                   required
+                />
+              </div>
+
+              {/* Comments */}
+              <div className="col-span-2">
+                <label className="block font-semibold text-slate-600 mb-1">Comments (ความคิดเห็น)</label>
+                <input 
+                  type="text" 
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="กรอกความคิดเห็นเพิ่มเติม..."
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
                 />
               </div>
             </div>
