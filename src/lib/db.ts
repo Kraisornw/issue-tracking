@@ -253,19 +253,26 @@ export const calculateKPIs = (issues: Issue[], currentDateStr = '2026-06-24'): D
 // Database Service Class
 class DatabaseService {
   async getIssues(): Promise<Issue[]> {
+    let rawIssues: Issue[] = [];
     if (hasSupabaseConfig && supabase) {
       const { data, error } = await supabase.from('issues').select('*');
       if (error) {
         console.error('Supabase getIssues error:', error);
         throw error;
       }
-      return (data || []) as Issue[];
+      rawIssues = (data || []) as Issue[];
     } else if (hasFirebaseConfig && db) {
       const snapshot = await db.collection('issues').get();
-      return snapshot.docs.map((doc: any) => doc.data() as Issue);
+      rawIssues = snapshot.docs.map((doc: any) => doc.data() as Issue);
     } else {
-      return getLocalData().issues;
+      rawIssues = getLocalData().issues;
     }
+
+    // Normalize legacy status values dynamically
+    return rawIssues.map(i => ({
+      ...i,
+      status: i.status === 'Closed' ? 'Completed' : i.status === 'Open' ? 'Pending' : i.status
+    }));
   }
 
   async upsertIssues(issuesList: Issue[], uploadId?: string | number): Promise<{ newRecords: number; updatedRecords: number }> {

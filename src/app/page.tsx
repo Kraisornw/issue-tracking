@@ -641,7 +641,15 @@ export default function HomePage() {
                     onChange={(e) => setFilters(prev => ({ ...prev, [select.stateKey]: e.target.value }))}
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-750 focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500/10 transition-colors font-semibold cursor-pointer"
                   >
-                    <option value="">All {select.label}s</option>
+                    <option value="">
+                      {select.label === 'Status' 
+                        ? 'All Statuses' 
+                        : select.label === 'Discussion Category' 
+                          ? 'All Discussion Categories' 
+                          : select.label === 'Topic / Agenda' 
+                            ? 'All Topics / Agendas' 
+                            : `All ${select.label}s`}
+                    </option>
                     {select.options.map(opt => (
                       <option key={opt} value={opt}>{opt}</option>
                     ))}
