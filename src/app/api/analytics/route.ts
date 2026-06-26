@@ -261,7 +261,8 @@ export async function GET(req: NextRequest) {
       projects: uniqueValues('project'),
       categories: uniqueValues('category'),
       statuses: uniqueValues('status'),
-      priorities: uniqueValues('priority')
+      priorities: uniqueValues('priority'),
+      descriptions: uniqueValues('description')
     };
 
     // Calculate specific KPIs for this filtered set

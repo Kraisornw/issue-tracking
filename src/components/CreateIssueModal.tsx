@@ -16,7 +16,7 @@ interface CreateIssueModalProps {
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
   existingProjects?: string[];
-  existingCategories?: string[];
+  existingDescriptions?: string[];
 }
 
 export function CreateIssueModal({ 
@@ -24,7 +24,7 @@ export function CreateIssueModal({
   onOpenChange, 
   onSuccess,
   existingProjects = [],
-  existingCategories = []
+  existingDescriptions = []
 }: CreateIssueModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -182,21 +182,21 @@ export function CreateIssueModal({
                 </datalist>
               </div>
 
-              {/* Discussion */}
+              {/* Action Item */}
               <div className="col-span-2 sm:col-span-1">
-                <label className="block font-semibold text-slate-600 mb-1">Discussion (หมวดหมู่) *</label>
+                <label className="block font-semibold text-slate-600 mb-1">Action Item (รายละเอียดงาน) *</label>
                 <input 
                   type="text" 
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  placeholder="เช่น Architectural, MEP"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="กรอกรายละเอียดงานหรือหัวข้อปัญหาที่พบ..."
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
-                  list="existing-categories-list"
+                  list="existing-descriptions-list"
                   required
                 />
-                <datalist id="existing-categories-list">
-                  {existingCategories.map((cat) => (
-                    <option key={cat} value={cat} />
+                <datalist id="existing-descriptions-list">
+                  {existingDescriptions.map((desc) => (
+                    <option key={desc} value={desc} />
                   ))}
                 </datalist>
               </div>
@@ -241,14 +241,15 @@ export function CreateIssueModal({
                 />
               </div>
 
-              {/* Action Item */}
+              {/* Discussion */}
               <div className="col-span-2">
-                <label className="block font-semibold text-slate-600 mb-1">Action Item (รายละเอียดงาน) *</label>
-                <textarea 
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="กรอกรายละเอียดงานหรือหัวข้อปัญหาที่พบ..."
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white h-24 resize-none text-slate-800"
+                <label className="block font-semibold text-slate-600 mb-1">Discussion (หมวดหมู่) *</label>
+                <input 
+                  type="text" 
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  placeholder="เช่น Architectural, MEP"
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white text-slate-800"
                   required
                 />
               </div>

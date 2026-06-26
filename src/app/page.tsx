@@ -98,6 +98,7 @@ export default function HomePage() {
     severities: string[];
     responsibles: string[];
     locations: string[];
+    descriptions: string[];
   }>({
     projects: [],
     categories: [],
@@ -106,7 +107,8 @@ export default function HomePage() {
     priorities: [],
     severities: [],
     responsibles: [],
-    locations: []
+    locations: [],
+    descriptions: []
   });
 
   // Filter States
@@ -794,7 +796,7 @@ export default function HomePage() {
         onOpenChange={setCreateModalOpen} 
         onSuccess={fetchData} 
         existingProjects={filterOptions.projects}
-        existingCategories={filterOptions.categories}
+        existingDescriptions={filterOptions.descriptions}
       />
 
       {/* Excel Upload Modal */}
